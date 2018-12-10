@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 
   int rank;                 /* rank of process */
   int size;                 /* number of processes started */
-  
+
   MPI_Init( &argc, &argv );
 
   /* check whether the initialisation was successful */
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   // }
 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
-  MPI_Comm_size(MPI_COMM_WORLD, &nproc);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
 
   // Check usage
   if (argc != 4) {
