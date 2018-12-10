@@ -21,16 +21,14 @@ int main(int argc, char *argv[]) {
   int size;                 /* number of processes started */
 
   MPI_Init( &argc, &argv );
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
 
   /* check whether the initialisation was successful */
   // MPI_Initialized(&flag);
   // if ( flag != TRUE )
   //   MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
   // }
-
-
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
 
   // Check usage
   if (argc != 4) {
@@ -46,7 +44,7 @@ int main(int argc, char *argv[]) {
   // Allocate the image
   float *image = malloc(sizeof(float)*nx*ny);
   float *tmp_image = malloc(sizeof(float)*nx*ny);
-  float *temp_image;
+  float *temp_image = malloc(sizeof(float) * nx * (ny/16));
 
   float sectionSize = nx*(ny/16);
 
