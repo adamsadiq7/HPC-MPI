@@ -83,15 +83,27 @@ int main(int argc, char *argv[]) {
 }
 
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image, int rank) {
-  
-    if (rank==0){
-      printf("rank 0\n");
+
+    int holder;
+    MPI_Status *status;
+
+    if( rank == 0 ){
+      // float topRow = malloc(data, count, );
+      // MPI_Send(topRow, count, datatype,destination, tag, MPI_COMM_WORLD)
+      MPI_Send(1, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
+      printf("Sending to 1\n");
     }
-    else if (rank==15) {
-      printf("rank 15\n");
+    if ( rank == 1 ){
+      MPI_Recv(holder, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, status);
+      printf("Sending to 1\n");
     }
-    
-    
+    else if ( rank == 15 ){
+
+    }
+    else{
+
+    }
+
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment   
     tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
@@ -105,7 +117,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     }
 
     //bottom cases
-    
+
     for (int j = 1; j<nx-1; ++j){
       tmp_image[nx*ny-nx+j] = image[nx*ny-(nx)+j] * 0.6f + (image[nx*ny-(nx)+j-1] + image[nx*ny-(nx)+j+1] + image[nx*ny-(2*nx)+j]) * 0.1f;
     }
