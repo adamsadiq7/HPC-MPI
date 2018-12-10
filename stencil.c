@@ -87,7 +87,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     float *send = (float *) malloc(sizeof(float) * nx);
     float *receive = (float *) malloc(sizeof(float) * nx);
 
-    int ping = 7;
+    int ping = 14;
     int result = 0;
     MPI_Status *status;
 
