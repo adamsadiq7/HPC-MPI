@@ -96,6 +96,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
       printf("Sending to 1\n");
     }
     if ( rank == 1 ){
+      printf("entered rank==1 condition\n");
       MPI_Recv(receive, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, status);
       printf("Received\n");
     }
