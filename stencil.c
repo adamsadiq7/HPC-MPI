@@ -84,13 +84,15 @@ int main(int argc, char *argv[]) {
 
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image, int rank) {
 
-    int holder;
+    float *send = (float *) malloc(sizeof(float) * nx);
+    send = 5.0;
+    float *receive = (float *) malloc(sizeof(float) * nx);
     MPI_Status *status;
 
     if( rank == 0 ){
       // float topRow = malloc(data, count, );
       // MPI_Send(topRow, count, datatype,destination, tag, MPI_COMM_WORLD)
-      MPI_Send(1, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
+      MPI_Send(send, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
       printf("Sending to 1\n");
     }
     if ( rank == 1 ){
