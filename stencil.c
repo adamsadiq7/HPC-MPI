@@ -16,6 +16,7 @@ double wtime(void);
 
 int main(int argc, char *argv[]) {
 
+  printf("start\n");
   int rank;                 /* rank of process */
   int size;                 /* number of processes started */
 
