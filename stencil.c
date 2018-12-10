@@ -36,6 +36,8 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
+  printf("1\n");
+
   // Initiliase problem dimensions from command line arguments
   int nx = atoi(argv[1]);
   int ny = atoi(argv[2]);
@@ -54,11 +56,16 @@ int main(int argc, char *argv[]) {
 
   // MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
+
+  printf("2\n");
+
   if (rank == MASTER){
     MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
   }
 
-  printf("rank %d", rank);
+  printf("3\n");
+
+  printf("rank %d\n", rank);
 
 
 
@@ -78,10 +85,10 @@ int main(int argc, char *argv[]) {
   // double toc = wtime();
 
 
-  // Output
-  // printf("------------------------------------\n");
-  // printf(" runtime: %lf s\n", toc-tic);
-  // printf("------------------------------------\n");
+  Output
+  printf("------------------------------------\n");
+  printf(" runtime: %lf s\n", toc-tic);
+  printf("------------------------------------\n");
 
   output_image(OUTPUT_FILE, nx, ny, image);
   free(image);
