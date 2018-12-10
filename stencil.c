@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image, int rank) {
 
     float *send = (float *) malloc(sizeof(float) * nx);
-    send = 5.0;
+    send = 5f;
     float *receive = (float *) malloc(sizeof(float) * nx);
     MPI_Status *status;
 
