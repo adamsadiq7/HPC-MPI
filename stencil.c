@@ -27,6 +27,8 @@ int main(int argc, char *argv[]) {
   //   MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
   // }
 
+  printf("0\n");
+
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
@@ -84,11 +86,9 @@ int main(int argc, char *argv[]) {
 
   // double toc = wtime();
 
-
-  Output
-  printf("------------------------------------\n");
-  printf(" runtime: %lf s\n", toc-tic);
-  printf("------------------------------------\n");
+  // printf("------------------------------------\n");
+  // printf(" runtime: %lf s\n", toc-tic);
+  // printf("------------------------------------\n");
 
   output_image(OUTPUT_FILE, nx, ny, image);
   free(image);
