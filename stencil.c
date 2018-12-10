@@ -19,7 +19,6 @@ int main(int argc, char *argv[]) {
   int rank;                 /* rank of process */
   int size;                 /* number of processes started */
 
-printf("start\n");
   MPI_Init( &argc, &argv );
 
   /* check whether the initialisation was successful */
@@ -28,7 +27,6 @@ printf("start\n");
   //   MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
   // }
 
-  printf("0\n");
 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
   MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -38,8 +36,6 @@ printf("start\n");
     fprintf(stderr, "Usage: %s nx ny niters\n", argv[0]);
     exit(EXIT_FAILURE);
   }
-
-  printf("1\n");
 
   // Initiliase problem dimensions from command line arguments
   int nx = atoi(argv[1]);
@@ -59,14 +55,9 @@ printf("start\n");
 
   // MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-
-  printf("2\n");
-
   if (rank == MASTER){
     MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
   }
-
-  printf("3\n");
 
   // Call the stencil kernel
   double tic = wtime();
@@ -80,12 +71,12 @@ printf("start\n");
   // }
   // MPI_Gather(&sub_avg, 1, MPI_FLOAT, sub_avgs, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-
+  printf("rank is %d",rank);
   double toc = wtime();
 
-  printf("------------------------------------\n");
-  printf(" runtime: %lf s\n", toc-tic);
-  printf("------------------------------------\n");
+  // printf("------------------------------------\n");
+  // printf(" runtime: %lf s\n", toc-tic);
+  // printf("------------------------------------\n");
 
   output_image(OUTPUT_FILE, nx, ny, image);
   free(image);
