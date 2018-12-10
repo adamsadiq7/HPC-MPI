@@ -12,6 +12,8 @@ void init_image(const int nx, const int ny, float *  image, float *  tmp_image);
 void output_image(const char * file_name, const int nx, const int ny, float *image);
 double wtime(void);
 
+#define MASTER 0
+
 int main(int argc, char *argv[]) {
 
   MPI_Init( &argc, &argv );
@@ -21,6 +23,9 @@ int main(int argc, char *argv[]) {
   if ( flag != TRUE ) {
     MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
   }
+
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
+  MPI_Comm_size(MPI_COMM_WORLD, &nproc);
 
   // Check usage
   if (argc != 4) {
@@ -37,16 +42,37 @@ int main(int argc, char *argv[]) {
   float *image = malloc(sizeof(float)*nx*ny);
   float *tmp_image = malloc(sizeof(float)*nx*ny);
 
+  float *temp_image = malloc(sizeof(float) * nx * (ny/16));
+
+  float sectionSize = nx*(ny/16);
+
   // Set the input image
   init_image(nx, ny, image, tmp_image);
 
-  // Call the stencil kernel
-  double tic = wtime();
-  for (int t = 0; t < niters; ++t) {
-    stencil(nx, ny, image, tmp_image);
-    stencil(nx, ny, tmp_image, image);
+  // MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+
+  if (rank == MASTER){
+    MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
   }
-  double toc = wtime();
+
+  printf("rank %d", rank);
+
+
+
+  // Call the stencil kernel
+  // double tic = wtime();
+  // for (int t = 0; t < niters; ++t) {
+  //   stencil(nx, ny, image, tmp_image);
+  //   stencil(nx, ny, tmp_image, image);
+  // }
+
+  // if (world_rank == 0) {
+  //   sub_avgs = malloc(sizeof(float) * world_size);
+  // }
+  // MPI_Gather(&sub_avg, 1, MPI_FLOAT, sub_avgs, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+
+
+  // double toc = wtime();
 
 
   // Output
@@ -60,6 +86,11 @@ int main(int argc, char *argv[]) {
 
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image) {
   
+  if (rank != 0){
+    MPI_Send(image)
+  }
+
+
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment   
     tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
