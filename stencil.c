@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
   // }
   // MPI_Gather(&sub_avg, 1, MPI_FLOAT, sub_avgs, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-  printf("rank is %d",rank);
+  printf("rank is %d\n",rank);
   double toc = wtime();
 
   // printf("------------------------------------\n");
