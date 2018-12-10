@@ -85,7 +85,6 @@ int main(int argc, char *argv[]) {
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image, int rank) {
 
     float *send = (float *) malloc(sizeof(float) * nx);
-    send = 5.0f;
     float *receive = (float *) malloc(sizeof(float) * nx);
     MPI_Status *status;
 
@@ -95,8 +94,8 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
       MPI_Send(send, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
       printf("Sending to 1\n");
     }
-    if ( rank == 1 ){
-      MPI_Recv(holder, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, status);
+    else if ( rank == 1 ){
+      MPI_Recv(receive, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, status);
       printf("Received\n");
     }
     else if ( rank == 15 ){
