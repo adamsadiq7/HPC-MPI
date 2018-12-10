@@ -85,10 +85,10 @@ int main(int argc, char *argv[]) {
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image, int rank) {
   
     if (rank==0){
-      printf("rank 0");
+      printf("rank 0\n");
     }
     else if (rank==15) {
-      printf("rank 15");
+      printf("rank 15\n");
     }
     
     
