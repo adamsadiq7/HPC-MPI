@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include "mpi.h"
 
 // Define output file name
 #define OUTPUT_FILE "stencil.pgm"
@@ -12,6 +13,14 @@ void output_image(const char * file_name, const int nx, const int ny, float *ima
 double wtime(void);
 
 int main(int argc, char *argv[]) {
+
+  MPI_Init( &argc, &argv );
+
+  /* check whether the initialisation was successful */
+  MPI_Initialized(&flag);
+  if ( flag != TRUE ) {
+    MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
+  }
 
   // Check usage
   if (argc != 4) {
