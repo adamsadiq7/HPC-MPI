@@ -86,9 +86,9 @@ int main(int argc, char *argv[]) {
 
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image) {
   
-  if (rank != 0){
-    MPI_Send(image)
-  }
+  // if (rank != 0){
+  //   MPI_Send(image)
+  // }
 
 
     //Corner cases cmonnnnn
