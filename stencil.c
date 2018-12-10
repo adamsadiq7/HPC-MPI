@@ -19,10 +19,10 @@ int main(int argc, char *argv[]) {
   MPI_Init( &argc, &argv );
 
   /* check whether the initialisation was successful */
-  MPI_Initialized(&flag);
-  if ( flag != TRUE ) {
-    MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
-  }
+  // MPI_Initialized(&flag);
+  // if ( flag != TRUE ) {
+  //   MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
+  // }
 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
   MPI_Comm_size(MPI_COMM_WORLD, &nproc);
