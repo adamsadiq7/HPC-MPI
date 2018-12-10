@@ -61,6 +61,7 @@ int main(int argc, char *argv[]) {
   // Call the stencil kernel
   double tic = wtime();
   for (int t = 0; t < niters; ++t) {
+    printf("iteration %d",t);
     stencil(nx, ny, image, tmp_image, rank);
     stencil(nx, ny, tmp_image, image, rank);
   }
@@ -91,8 +92,8 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     int result = 0;
     MPI_Status *status;
 
-    printf("rank %d\n", rank);
-    if( rank == 0 ){
+    // printf("rank %d\n", rank);
+    if ( rank == 0 ){
       // float topRow = malloc(data, count, );
       // MPI_Send(topRow, count, datatype,destination, tag, MPI_COMM_WORLD)
       MPI_Send(send, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
