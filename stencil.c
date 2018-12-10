@@ -19,12 +19,12 @@ int main(int argc, char *argv[]) {
   int rank;                 /* rank of process */
   int size;                 /* number of processes started */
 
-printf("start");
+printf("start\n");
   MPI_Init( &argc, &argv );
 
   /* check whether the initialisation was successful */
   // MPI_Initialized(&flag);
-  // if ( flag != TRUE ) {
+  // if ( flag != TRUE )
   //   MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
   // }
 
@@ -67,10 +67,6 @@ printf("start");
   }
 
   printf("3\n");
-
-  printf("rank %d\n", rank);
-
-
 
   // Call the stencil kernel
   double tic = wtime();
