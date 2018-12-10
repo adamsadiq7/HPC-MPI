@@ -88,7 +88,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     float *receive = (float *) malloc(sizeof(float) * nx);
     MPI_Status *status;
 
-    printf("rank %d", rank);
+    printf("rank %d\n", rank);
     if( rank == 0 ){
       // float topRow = malloc(data, count, );
       // MPI_Send(topRow, count, datatype,destination, tag, MPI_COMM_WORLD)
