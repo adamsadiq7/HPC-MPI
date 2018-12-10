@@ -76,9 +76,9 @@ int main(int argc, char *argv[]) {
 
 
   // Output
-  printf("------------------------------------\n");
-  printf(" runtime: %lf s\n", toc-tic);
-  printf("------------------------------------\n");
+  // printf("------------------------------------\n");
+  // printf(" runtime: %lf s\n", toc-tic);
+  // printf("------------------------------------\n");
 
   output_image(OUTPUT_FILE, nx, ny, image);
   free(image);
