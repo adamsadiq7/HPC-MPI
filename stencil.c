@@ -72,11 +72,11 @@ int main(int argc, char *argv[]) {
 
 
   // Call the stencil kernel
-  // double tic = wtime();
-  // for (int t = 0; t < niters; ++t) {
-  //   stencil(nx, ny, image, tmp_image);
-  //   stencil(nx, ny, tmp_image, image);
-  // }
+  double tic = wtime();
+  for (int t = 0; t < niters; ++t) {
+    stencil(nx, ny, image, tmp_image);
+    stencil(nx, ny, tmp_image, image);
+  }
 
   // if (world_rank == 0) {
   //   sub_avgs = malloc(sizeof(float) * world_size);
@@ -84,11 +84,11 @@ int main(int argc, char *argv[]) {
   // MPI_Gather(&sub_avg, 1, MPI_FLOAT, sub_avgs, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
 
-  // double toc = wtime();
+  double toc = wtime();
 
-  // printf("------------------------------------\n");
-  // printf(" runtime: %lf s\n", toc-tic);
-  // printf("------------------------------------\n");
+  printf("------------------------------------\n");
+  printf(" runtime: %lf s\n", toc-tic);
+  printf("------------------------------------\n");
 
   output_image(OUTPUT_FILE, nx, ny, image);
   free(image);
