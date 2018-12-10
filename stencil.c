@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
   // Allocate the image
   float *image = malloc(sizeof(float)*nx*ny);
   float *tmp_image = malloc(sizeof(float)*nx*ny);
-  // float *temp_image = malloc(sizeof(float) * nx * (ny/16));
+  float *temp_image;
 
   float sectionSize = nx*(ny/16);
 
