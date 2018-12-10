@@ -16,6 +16,9 @@ double wtime(void);
 
 int main(int argc, char *argv[]) {
 
+  int rank;                 /* rank of process */
+  int size;                 /* number of processes started */
+  
   MPI_Init( &argc, &argv );
 
   /* check whether the initialisation was successful */
