@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
 
   // Allocate the image
   float *image = malloc(sizeof(float)*nx*ny);
-  float *tmp_image = malloc(sizeof(float)*nx*ny);
 
   float *temp_image = malloc(sizeof(float) * nx * (ny/16));
 
@@ -56,8 +55,11 @@ int main(int argc, char *argv[]) {
   // MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
   if (rank == MASTER){
-    MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    float *tmp_image = malloc(sizeof(float)*nx*ny);
   }
+
+  MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+
 
   // Call the stencil kernel
   double tic = wtime();
