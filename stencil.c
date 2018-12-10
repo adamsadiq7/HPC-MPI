@@ -44,8 +44,8 @@ int main(int argc, char *argv[]) {
 
   // Allocate the image
   float *image = malloc(sizeof(float)*nx*ny);
-
-  float *temp_image = malloc(sizeof(float) * nx * (ny/16));
+  float *tmp_image = malloc(sizeof(float)*nx*ny);
+  // float *temp_image = malloc(sizeof(float) * nx * (ny/16));
 
   float sectionSize = nx*(ny/16);
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
   // MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
   if (rank == MASTER){
-    float *tmp_image = malloc(sizeof(float)*nx*ny);
+      float *temp_image = malloc(sizeof(float) * nx * (ny/16));
   }
 
   MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
