@@ -94,7 +94,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
       MPI_Send(send, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
       printf("Sending to 1\n");
     }
-    else if ( rank == 1 ){
+    if ( rank == 1 ){
       MPI_Recv(receive, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, status);
       printf("Received\n");
     }
