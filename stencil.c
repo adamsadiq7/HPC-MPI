@@ -58,7 +58,6 @@ int main(int argc, char *argv[]) {
 
   MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-
   // Call the stencil kernel
   double tic = wtime();
   for (int t = 0; t < niters; ++t) {
@@ -85,6 +84,14 @@ int main(int argc, char *argv[]) {
 
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image) {
   
+    if (rank==0){
+      printf("rank 0");
+    }
+    else if (rank==15) {
+      printf("rank 15");
+    }
+    
+    
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment   
     tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
