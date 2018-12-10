@@ -95,7 +95,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     if( rank == 0 ){
       // float topRow = malloc(data, count, );
       // MPI_Send(topRow, count, datatype,destination, tag, MPI_COMM_WORLD)
-      MPI_Send(ping, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
+      MPI_Send(&ping, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
       printf("Sending to 1\n");
     }
     else if ( rank == 1 ){
