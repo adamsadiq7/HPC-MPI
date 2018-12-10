@@ -87,67 +87,66 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     float *send = (float *) malloc(sizeof(float) * nx);
     float *receive = (float *) malloc(sizeof(float) * nx);
 
-    int ping_pong_count = 0;
-
-
+    int ping = 7;
+    int result = 0;
     MPI_Status *status;
 
     printf("rank %d\n", rank);
     if( rank == 0 ){
       // float topRow = malloc(data, count, );
       // MPI_Send(topRow, count, datatype,destination, tag, MPI_COMM_WORLD)
-      MPI_Send(send, nx, MPI_FLOAT , 1, 0, MPI_COMM_WORLD);
+      MPI_Send(ping, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
       printf("Sending to 1\n");
     }
-    if ( rank == 1 ){
-      MPI_Recv(receive, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
-      printf("Received\n");
+    else if ( rank == 1 ){
+      MPI_Recv(result, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, status);
+      printf("Received %d\n", result);
     }
-    else if ( rank == 15 ){
+    // else if ( rank == 15 ){
 
-    }
+    // }
     else{
 
     }
 
-    //Corner cases cmonnnnn
-    tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment   
-    tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
-    tmp_image[nx*ny-(nx)] = image[nx*ny-(nx)] * 0.6f + (image[nx*ny-(nx*2)] + image[nx*ny-(nx-1)]) * 0.1f;
-    tmp_image[nx*ny-1] = image[nx*ny-1] * 0.6f + (image[nx*ny-(nx+1)] + image[nx*ny-2]) * 0.1f;
+    // //Corner cases cmonnnnn
+    // tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment   
+    // tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
+    // tmp_image[nx*ny-(nx)] = image[nx*ny-(nx)] * 0.6f + (image[nx*ny-(nx*2)] + image[nx*ny-(nx-1)]) * 0.1f;
+    // tmp_image[nx*ny-1] = image[nx*ny-1] * 0.6f + (image[nx*ny-(nx+1)] + image[nx*ny-2]) * 0.1f;
 
-    //top cases
+    // //top cases
 
-    for (int j = 1; j<nx-1; ++j){
-      tmp_image[j] = image[j] * 0.6f + (image[j-1] + image[j+1] + image[j+nx]) * 0.1f;
-    }
+    // for (int j = 1; j<nx-1; ++j){
+    //   tmp_image[j] = image[j] * 0.6f + (image[j-1] + image[j+1] + image[j+nx]) * 0.1f;
+    // }
 
-    //bottom cases
+    // //bottom cases
 
-    for (int j = 1; j<nx-1; ++j){
-      tmp_image[nx*ny-nx+j] = image[nx*ny-(nx)+j] * 0.6f + (image[nx*ny-(nx)+j-1] + image[nx*ny-(nx)+j+1] + image[nx*ny-(2*nx)+j]) * 0.1f;
-    }
+    // for (int j = 1; j<nx-1; ++j){
+    //   tmp_image[nx*ny-nx+j] = image[nx*ny-(nx)+j] * 0.6f + (image[nx*ny-(nx)+j-1] + image[nx*ny-(nx)+j+1] + image[nx*ny-(2*nx)+j]) * 0.1f;
+    // }
 
-    //1. left cases
+    // //1. left cases
 
-    for (int j = 1; j<nx-1; ++j){
-      tmp_image[ny*j] = image[ny*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
-    }
+    // for (int j = 1; j<nx-1; ++j){
+    //   tmp_image[ny*j] = image[ny*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
+    // }
     
-    //2. right cases
+    // //2. right cases
 
-    for (int j = 1; j<nx-1; ++j){
-      tmp_image[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
-    }
+    // for (int j = 1; j<nx-1; ++j){
+    //   tmp_image[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
+    // }
 
-    //3. middle cases
+    // //3. middle cases
 
-    #pragma omp simd
-    for (int j = 0; j < (nx*(nx-2)); j+=nx) {
-      for(int i = 1; i<ny-1;++i){
-        tmp_image[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
-      }
-    }
+    // #pragma omp simd
+    // for (int j = 0; j < (nx*(nx-2)); j+=nx) {
+    //   for(int i = 1; i<ny-1;++i){
+    //     tmp_image[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
+    //   }
+    // }
 
 
 }
