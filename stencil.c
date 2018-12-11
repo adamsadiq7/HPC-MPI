@@ -109,11 +109,12 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
 
     float *lastRowRecv = (float *)malloc(nx * sizeof(float));
     MPI_Status *status;
-
+    printf("1\n");
     //MPI_Sendrecv(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, lastRowRecv, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, status);
     MPI_Send(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD);
+    printf("Sent\n");
     MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD, status);
-
+    printf("Received\n");
     //Attempt 1 at implementing
     //tmp_image[5+6*nx]  = image[5+6*nx] * 0.6;
     //printf("tmp image %f, image %f\n", tmp_image[5+6*nx], image[5+6*nx] );
