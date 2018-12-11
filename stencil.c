@@ -124,7 +124,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
 
     // printf("%d  %d\n", nx, ny );
     for(int i = 0 ; i < ny; i++){
-     for( int j =0 ; j < nx ; j++){   
+     for( int j =0 ; j < nx ; j++){  
 
        tmp_image[j+i*nx]  = image[j+i*nx] * 0.6f;
        
@@ -300,7 +300,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
   //   }
   
 
-  // printf("end of function\n");
+  printf("end of function\n");
 }
 
 // Create the input image
