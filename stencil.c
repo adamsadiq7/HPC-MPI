@@ -38,11 +38,14 @@ int main(int argc, char *argv[])
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+  float *image;
+  float *tmp_image;
+
   if (rank == MASTER)
   {
     // Allocate the image
-    float *image = malloc(sizeof(float) * nx * ny);
-    float *tmp_image = malloc(sizeof(float) * nx * ny);
+    image = malloc(sizeof(float) * nx * ny);
+    tmp_image = malloc(sizeof(float) * nx * ny);
 
     // Set the input image
     init_image(nx, ny, image, tmp_image);
