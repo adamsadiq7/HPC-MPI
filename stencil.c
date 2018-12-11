@@ -124,7 +124,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
 
     // printf("%d  %d\n", nx, ny );
 
-
+    printf("hi\n");
     //Corner cases
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment   
     tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
@@ -349,12 +349,6 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
         tmp_image[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
       }
     }
-    
-    
-    
-    
-    
-    
     
     
     // for(int i = 0 ; i < ny; i++){
