@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     stencil(nx, ny / 16, bufferImg, bufferTempImg, rank);
     stencil(nx, ny / 16, bufferTempImg, bufferImg, rank);
   }
-  printf("finished stencil\n");
+  // printf("finished stencil\n");
   double toc = wtime();
   
 
@@ -158,25 +158,25 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
     MPI_Send(firstRowSend, nx , MPI_FLOAT, rank-1, 0, MPI_COMM_WORLD );
 
 
-    for (int i = 0; i < ny; i++)
-    {
-      for (int j = 0; j < nx; j++)
-      {
-        tmp_image[j + i * nx] = image[j + i * nx] * 0.6;
-        if (i < 1 && j > 0 && j < nx - 1)
-          tmp_image[j + i * nx] += firstRowRecv[j] + image[(j + 1) + i * nx] * 0.1 + 0.1 * image[j + (i + 1) * nx] + 0.1 * image[(j - 1) + i * nx];
-        else if (j < 1)
-          tmp_image[j + i * nx] += 0.1 * image[j + 1 + i * nx] + 0.1 * image[j + (i - 1) * nx] + 0.1 * image[j + (i + 1) * nx];
-        else if (j > nx - 2)
-          tmp_image[j + i * nx] += 0.1 * image[j - 1 + i * nx] + 0.1 * image[j + (i - 1) * nx] + 0.1 * image[j + (i + 1) * nx];
-        else if (i > ny - 2 && j > 0 && j < nx - 1)
-          tmp_image[j + i * nx] += 0.1 * image[j + (i - 1) * nx] + 0.1 * image[j - 1 + i * nx] + 0.1 * image[j + 1 + i * nx];
-        else
-        {
-          tmp_image[j + i * nx] += 0.1 * image[j + 1 + i * nx] + 0.1 * image[j - 1 + i * nx] + 0.1 * image[j + (i - 1) * nx] + 0.1 * 0.1 * image[j + (i + 1) * nx];
-        }
-      }
-    }
+    // for (int i = 0; i < ny; i++)
+    // {
+    //   for (int j = 0; j < nx; j++)
+    //   {
+    //     tmp_image[j + i * nx] = image[j + i * nx] * 0.6;
+    //     if (i < 1 && j > 0 && j < nx - 1)
+    //       tmp_image[j + i * nx] += firstRowRecv[j] + image[(j + 1) + i * nx] * 0.1 + 0.1 * image[j + (i + 1) * nx] + 0.1 * image[(j - 1) + i * nx];
+    //     else if (j < 1)
+    //       tmp_image[j + i * nx] += 0.1 * image[j + 1 + i * nx] + 0.1 * image[j + (i - 1) * nx] + 0.1 * image[j + (i + 1) * nx];
+    //     else if (j > nx - 2)
+    //       tmp_image[j + i * nx] += 0.1 * image[j - 1 + i * nx] + 0.1 * image[j + (i - 1) * nx] + 0.1 * image[j + (i + 1) * nx];
+    //     else if (i > ny - 2 && j > 0 && j < nx - 1)
+    //       tmp_image[j + i * nx] += 0.1 * image[j + (i - 1) * nx] + 0.1 * image[j - 1 + i * nx] + 0.1 * image[j + 1 + i * nx];
+    //     else
+    //     {
+    //       tmp_image[j + i * nx] += 0.1 * image[j + 1 + i * nx] + 0.1 * image[j - 1 + i * nx] + 0.1 * image[j + (i - 1) * nx] + 0.1 * 0.1 * image[j + (i + 1) * nx];
+    //     }
+    //   }
+    // }
 
     // for(int i =0  ; i< 64 ; i++){
     //   for( int j= 0 ; j< 1024 ; j++){
@@ -299,7 +299,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
   //    tmp_image[j + ny*(nx-1)] = 0.6f*image[j+ ny*(nx-1)] + 0.1f*image[(j-1)+ ny*(nx-1)] + 0.1f*image[(j+1)+ ny*(nx-1)] + 0.1f*image[j+ ny*(nx-2)];
   //   }
   
-  printf("end of function\n");
+  // printf("end of function\n");
 }
 
 // Create the input image
