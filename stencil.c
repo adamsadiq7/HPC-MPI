@@ -291,7 +291,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
     float *lastRowSend = (float *)  malloc(nx * sizeof(float));
 
     int firstRowStart = 0;
-    int firstRowEnd = nx - 1;]
+    int firstRowEnd = nx - 1;
 
     int lastRowStart = (ny - 1) * nx;
     int lastRowEnd = (ny - 1) * nx + nx - 1;
