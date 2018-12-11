@@ -92,7 +92,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     // printf("rank %d\n", rank);
     if (rank == 0)
     {
-
+      printf("rank 0\n");
       float *send1 = (float *)malloc(sizeof(float) * nx);
       float *receive1 = (float *)malloc(sizeof(float) * nx);
 
@@ -105,6 +105,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     }
     else if (rank == 1)
     {
+      printf("rank 1\n");
 
       float *send2 = (float *)malloc(sizeof(float) * nx);
       float *receive2 = (float *)malloc(sizeof(float) * nx);
@@ -121,7 +122,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
 
     // }
     else{
-      printf("else");
+      int i = 0;
     }
 
 
