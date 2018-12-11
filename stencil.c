@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     stencil(nx, ny / 16, bufferImg, bufferTempImg, rank);
     stencil(nx, ny / 16, bufferTempImg, bufferImg, rank);
   }
-  // printf("finished stencil\n");
+  printf("finished stencil\n");
   double toc = wtime();
   
 
@@ -300,7 +300,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
   //   }
   
 
-  printf("end of function\n");
+  // printf("end of function\n");
 }
 
 // Create the input image
