@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
   // Call the stencil kernel
   double tic = wtime();
   for (int t = 0; t < niters; ++t) {
-    printf("iteration %d\n",t);
+    // printf("iteration %d\n",t);
     stencil(nx, ny, image, tmp_image, rank);
     stencil(nx, ny, tmp_image, image, rank);
   }
