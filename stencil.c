@@ -134,7 +134,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
       MPI_Send(send2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
       MPI_Recv(receive2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
 
-      printf("Received %d\n", receive2);
+      printf("Received %f\n", receive2);
 
       free(receive2);
       free(send2);
