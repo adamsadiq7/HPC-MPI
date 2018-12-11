@@ -94,13 +94,11 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
 
     // printf("rank %d\n", rank);
     if ( rank == 0 ){
-      // float topRow = malloc(data, count, );
-      // MPI_Send(topRow, count, datatype,destination, tag, MPI_COMM_WORLD)
-      MPI_Send(send, 1, MPI_INT , 1, 0, MPI_COMM_WORLD);
+      MPI_Send(send, 1, MPI_FLOAT , 1, 0, MPI_COMM_WORLD);
       printf("Sending to 1\n");
     }
     else if ( rank == 1 ){
-      MPI_Recv(receive, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, status);
+      MPI_Recv(receive, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
       printf("Received %d\n", result);
     }
     // else if ( rank == 15 ){
@@ -148,7 +146,6 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     //     tmp_image[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
     //   }
     // }
-
 
 }
 
