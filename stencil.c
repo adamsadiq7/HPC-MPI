@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   float sectionSize = nx * (ny / 16);
 
   // Set the input image
-  init_image(nx, ny, image, tmp_image);
+  // init_image(nx, ny, image, temp_image);
 
   if (rank == MASTER)
   {
