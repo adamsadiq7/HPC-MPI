@@ -291,7 +291,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
     float *lastRowSend = (float *)  malloc(nx * sizeof(float));
 
     int firstRowStart = 0;
-    int firstRowEnd = nx - 1;
+    int firstRowEnd = nx - 1;]
 
     int lastRowStart = (ny - 1) * nx;
     int lastRowEnd = (ny - 1) * nx + nx - 1;
@@ -310,7 +310,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
     MPI_Send(lastRowSend, nx, MPI_FLOAT,rank+1, 0, MPI_COMM_WORLD );
     MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, status);
     
-    
+    printf("corner\n");
     //Corner cases
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1] + firstRowRecv[0]) * 0.1f; //comment   
     tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2] + firstRowRecv[nx-1]) * 0.1f;
