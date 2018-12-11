@@ -97,12 +97,12 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
 
     // printf("rank %d\n", rank);
     if ( rank == 0 ){
-      MPI_Send(send1, 1, MPI_FLOAT , 0, 0, MPI_COMM_WORLD);
+      MPI_Send(send1, 1, MPI_FLOAT , 1, 0, MPI_COMM_WORLD);
       MPI_Recv(receive1, 1, MPI_FLOAT, 1, 0, MPI_COMM_WORLD, status);
       printf("Sending to 1\n");
     }
     else if ( rank == 1 ){
-      MPI_Recv(receive2, 1, MPI_FLOAT, 1, 0, MPI_COMM_WORLD, status);
+      MPI_Recv(receive2, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
       MPI_Send(send2, 1, MPI_FLOAT , 0, 0, MPI_COMM_WORLD);
       printf("Received %d\n", result);
     }
