@@ -1,14 +1,14 @@
 #!/bin/bash 
 
 #PBS -N MPI
-#PBS -o OUT
+#PBS -o stencil_output
 #PBS -q teaching
-#PBS -l nodes=1:ppn=16,walltime=00:00:10
+#PBS -l nodes=1:ppn=16,walltime=00:10:00
 
 #! Mail to user if job aborts
 #PBS -m a
 
-#!application name
+#! application name
 application="stencil"
 
 #! Run options for the application
@@ -27,7 +27,7 @@ echo Time is `date`
 echo Directory is `pwd`
 echo PBS job ID is $PBS_JOBID
 echo This jobs runs on the following machines:
-echo `cat $PBS_NODEFILE | uniq`
+echo `cat $PBS_NODEFZZILE | uniq`
  
 #! Create a machine file for MPI
 cat $PBS_NODEFILE > machine.file.$PBS_JOBID

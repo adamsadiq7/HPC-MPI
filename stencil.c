@@ -10,10 +10,6 @@ void stencil(const int nx, const int ny, float *image, float *tmp_image, int ran
 void init_image(const int nx, const int ny, float *image, float *tmp_image);
 void output_image(const char *file_name, const int nx, const int ny, float *image);
 double wtime(void);
-
-int rows;
-int cols;
-
 int main(int argc, char *argv[])
 {
 
@@ -48,40 +44,44 @@ int main(int argc, char *argv[])
   {
     image = malloc(sizeof(float) * ny * nx);
 
-    tmp_image = malloc(sizeof(float) * ny * nx);
+    tmp_image = alloc(sizeof(float) * ny * nx);
 
     // Set the input image
     init_image(nx, ny, image, tmp_image);
   }
-  rows = ny;
-  rows = nx;
   int sectionSize = ny * nx / 16;
 
   float *bufferImg = malloc((ny * nx / 16) * sizeof(float));
   float *bufferTempImg = malloc((ny * nx / 16) * sizeof(float));
 
   MPI_Scatter(image, sectionSize, MPI_FLOAT, bufferImg, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  
 
+  
   // Call the stencil kernel
   double tic = wtime();
-  for (int t = 0; t < niters; ++t)
-  {
+  for (int t = 0; t <  niters; ++t)
+  { 
+    
+    printf("iteration : %d and rank %d\n", t, rank);
+    
 
-    //printf("iteration : %d and rank %d\n", t, rank);
     stencil(nx, ny / 16, bufferImg, bufferTempImg, rank);
     stencil(nx, ny / 16, bufferTempImg, bufferImg, rank);
   }
-  //printf("finished stencil\n");
+  printf("finished stencil\n");
   double toc = wtime();
+  
 
   MPI_Finalize();
-  //Output
-  printf("------------------------------------\n");
-  printf(" runtime: %lf s\n", toc - tic);
-  printf("------------------------------------\n");
+  // Output
+  // printf("------------------------------------\n");
+  // printf(" runtime: %lf s\n", toc - tic);
+  // printf("------------------------------------\n");
 
   // output_image(OUTPUT_FILE, nx, ny, image);
   // free(image);
+  
 }
 
 float *extractElements(float *subArray, float *array, int start, int end)
@@ -97,169 +97,89 @@ float *extractElements(float *subArray, float *array, int start, int end)
 void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank)
 {
 
+  int sectionSize = 16 * nx * 16 * ny / 16;
+
   if (rank == 0)
   {
-
+    
     //sending the last row of the array to rank 1;
     int start = (ny - 1) * nx;
     int end = (ny - 1) * nx + nx - 1;
 
-    float *lastRowSend = (float *)malloc(nx * sizeof(float));
+    float *lastRowSend = (float *) malloc(nx * sizeof(float));
     lastRowSend = extractElements(lastRowSend, image, start, end);
 
-    float *lastRowRecv = (float *)malloc(nx * sizeof(float));
+    float *lastRowRecv = (float *) malloc(nx * sizeof(float));
     MPI_Status *status;
-    printf("1\n");
-    //MPI_Sendrecv(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, lastRowRecv, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, status);
-    MPI_Send(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD);
-    printf("Sent\n");
-    MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD, status);
-    printf("Received\n");
-    //Attempt 1 at implementing
-    //tmp_image[5+6*nx]  = image[5+6*nx] * 0.6;
-    //printf("tmp image %f, image %f\n", tmp_image[5+6*nx], image[5+6*nx] );
 
-    printf("adam\n");
-    printf("%d  %d\n", nx, ny);
-    for (int i = 0; i < 64; i++)
-    {
-      for (int j = 0; j < 1024; j++)
-      {
-
-        tmp_image[j + i * nx] = image[j + i * nx] * 0.6f;
-
-        if (i > 0)
-        {
-          tmp_image[j + i * nx] += image[j + (i - 1) * nx] * 0.1;
-        }
-
-        if (i < ny - 1)
-        {
-          tmp_image[j + i * nx] += image[j + (i + 1) * nx] * 0.1;
-        }
-
-        if (j > 0)
-        {
-          tmp_image[j + i * nx] += image[j - 1 + i * nx] * 0.1;
-        }
-        if (j < nx - 1)
-        {
-          tmp_image[j + i * nx] += image[j + 1 + i * nx] * 0.1;
-        }
-        if (i == ny - 1)
-        {
-          tmp_image[j + i * nx] += lastRowRecv[j] * 0.1;
-        }
-        printf("new tmp_image value %f \n ", tmp_image[j + i * nx]);
-      }
-    }
+    MPI_Sendrecv(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, lastRowRecv, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, status);
+    
     free(lastRowSend);
     free(lastRowRecv);
   }
-  else if (rank == 15)
-  {
+  else if (rank==15){
     //sending the first row of the array to rank 14
     int start = 0;
     int end = nx - 1;
 
-    float *firstRowSend = (float *)malloc(nx * sizeof(float));
+    float *firstRowSend = (float *) malloc(nx * sizeof(float));
     firstRowSend = extractElements(firstRowSend, image, start, end);
 
-    float *firstRowRecv = (float *)malloc(nx * sizeof(float));
+    float *firstRowRecv = (float *) malloc(nx * sizeof(float));
 
     MPI_Status *status;
-    MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD, status);
-    MPI_Send(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
 
-    // for(int i = 0 ; i < ny; i++){
-    //  for( int j =0 ; j< nx ; j++){
-    //                                    tmp_image[j+i*nx] = image[j+i*nx] * 0.6;
-    //  if(i<1 && j>0 && j<nx-1)          tmp_image[j+i*nx] += firstRowRecv[j] + image[(j+1) + i*nx]*0.1 + 0.1*image[j + (i+1)*nx] +  0.1*image[(j-1) + i*nx];
-    //  else if(j<1)                      tmp_image[j+i*nx] += 0.1*image[j+1+i*nx] + 0.1*image[j+(i-1)*nx] + 0.1*image[j+(i+1)*nx];
-    //  else if(j>nx-2)                   tmp_image[j+i*nx] += 0.1*image[j-1+i*nx] + 0.1*image[j+(i-1)*nx] + 0.1*image[j+(i+1)*nx];
-    //  else if(i>ny-2 && j>0 && j<nx-1 ) tmp_image[j+i*nx] += 0.1*image[j + (i-1)*nx] + 0.1*image[j-1 + i*nx] + 0.1*image[j+1 + i*nx];
-    //  else {                            tmp_image[j+i*nx] += 0.1*image[j+1+i*nx] + 0.1*image[j-1 + i*nx] + 0.1*image[j + (i-1)*nx] + 0.1*0.1*image[j + (i+1)*nx]; }
-    //  }
-    // }
+    //MPI_Sendrecv( firstRowSend , nx, MPI_FLOAT, 1, 0 , firstRowRecv , nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD, status);
+    MPI_Recv(firstRowRecv, nx , MPI_FLOAT, rank-1, 0, MPI_COMM_WORLD, status);
+    MPI_Send(firstRowSend, nx , MPI_FLOAT, rank-1, 0, MPI_COMM_WORLD );
 
-    // for(int i =0  ; i< 64 ; i++){
-    //   for( int j= 0 ; j< 1024 ; j++){
-    //     printf("value %f\n", image[j+i*nx]);
-    //   }
-    // }
-
-    for (int i = 0; i < 64; i++)
-    {
-      for (int j = 0; j < 1024; j++)
-      {
-        // tmp_image[j+i*nx]  = image[j+i*nx] * 0.6f;
-        // if(i>0)    tmp_image[j+i*nx] += image[j+(i-1)*nx]*0.1f;
-        // if(i<ny-1) tmp_image[j+i*nx] += image[j+(i+1)*nx] *0.1f;
-
-        // if(j>0)    tmp_image[j+i*nx] += image[j-1+i*nx]*0.1f;
-        // if(j<nx-1) tmp_image[j+i*nx] += image[j+1 + i*nx]*0.1f;
-        // if(i==0)   tmp_image[j+i*nx] += firstRowRecv[j]*0.1f;
-      }
-    }
     free(firstRowSend);
     free(firstRowRecv);
   }
-  else
-  {
+  else{
 
-    float *firstRowRecv = (float *)malloc(nx * sizeof(float));
-    float *lastRowRecv = (float *)malloc(nx * sizeof(float));
+    float *firstRowRecv = (float *) malloc(nx * sizeof(float));
+    float *lastRowRecv = (float *)  malloc(nx * sizeof(float));
 
-    float *firstRowSend = (float *)malloc(nx * sizeof(float));
-    float *lastRowSend = (float *)malloc(nx * sizeof(float));
+    float *firstRowSend = (float *) malloc(nx * sizeof(float));
+    float *lastRowSend = (float *)  malloc(nx * sizeof(float));
 
     int firstRowStart = 0;
     int firstRowEnd = nx - 1;
 
     int lastRowStart = (ny - 1) * nx;
     int lastRowEnd = (ny - 1) * nx + nx - 1;
-
+    
     firstRowSend = extractElements(firstRowSend, image, firstRowStart, firstRowEnd);
-
+    
     lastRowSend = extractElements(lastRowSend, image, lastRowStart, lastRowEnd);
+    
 
     //Sending and receving data from each rank above and below in the image
     MPI_Status *status;
+  
 
-    MPI_Send(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
-    MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD, status);
+    //MPI_Sendrecv( firstRowSend , nx, MPI_FLOAT, rank - 1, 0 , firstRowRecv , nx, MPI_FLOAT, rank-1, 0, MPI_COMM_WORLD, status);
+    printf("deadlock \n");
+     //MPI_Sendrecv( lastRowSend , nx, MPI_FLOAT, 2, 0 , lastRowRecv , nx, MPI_FLOAT, 2, 0, MPI_COMM_WORLD, status);
+    MPI_Send(firstRowSend, nx, MPI_FLOAT, rank-1, 0, MPI_COMM_WORLD );
+    MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank-1, 0, MPI_COMM_WORLD, status);
 
-    MPI_Send(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD);
-    MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD, status);
-
-    for (int i = 0; i < 64; i++)
-    {
-      for (int j = 0; j < 1024; j++)
-      {
-
-        //            tmp_image[j+i*nx]  = image[j+i*nx] * 0.6;
-        // if(i>0)    tmp_image[j+i*nx] += image[j+(i-1)*nx]*0.1;
-
-        // if(i<ny-1) tmp_image[j+i*nx] += image[j+(i+1)*nx] *0.1;
-        // if(j>0)    tmp_image[j+i*nx] += image[j-1+i*nx]*0.1;
-        // if(j<nx-1) tmp_image[j+i*nx] += image[j+1 + i*nx]*0.1;
-      }
-    }
-    // for(int i = 0 ; i < ny; i++){
-    //   for( int j =0 ; j< nx ; j++){
-    //                                     tmp_image[j+i*nx]= image[j+i*nx] * 0.6;
-    //   if(i<1 && j>0 && j<nx-1)          tmp_image[j+i*nx] += firstRowRecv[j] + image[(j+1) + i*nx] *0.1 + image[j + (i+1)*nx] +  image[(j-1) + i*nx];
-    //   else if(j<1)                      tmp_image[j+i*nx] += 0.1*image[j+1+i*nx] + 0.1*image[j+(i-1)*nx] + 0.1*image[j+(i+1)*nx];
-    //   else if(j>nx-2)                   tmp_image[j+i*nx] += 0.1*image[j-1+i*nx] + 0.1*image[j+(i-1)*nx] + 0.1*image[j+(i+1)*nx];
-    //   else if(i>ny-2 && j>0 && j<nx-1 ) tmp_image[j+i*nx] += lastRowRecv[j] + 0.1*image[j + (i-1)*nx] + 0.1*image[j-1 + i*nx] + 0.1*image[j+1 + i*nx];
-    //   else {                            tmp_image[j+i*nx] += 0.1*image[j+1+i*nx] + 0.1*image[j-1 + i*nx] + 0.1*image[j + (i-1)*nx] + 0.1*0.1*image[j + (i+1)*nx]; }
-    //   }
-    // }
+    MPI_Send(lastRowSend, nx, MPI_FLOAT,rank+1, 0, MPI_COMM_WORLD );
+    MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, status);
+    //int MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
+    //MPI_Recv(firstRowRecv, nx , MPI_FLOAT, 2, 0, MPI_COMM_WORLD, status);
+    printf("finish 1\n");
+    
     free(firstRowRecv);
     free(firstRowSend);
     free(lastRowRecv);
     free(lastRowSend);
   }
+  
+
+
+  
 
   //   //manually amending the values of the corners
   //  tmp_image[0]                   = 0.6f * image[0]                  + 0.1f*image[1 + ny*0]                  + 0.1f*image[0 + ny*1];
@@ -298,6 +218,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
   //   for(int j = 1; j<nx-1; ++j){
   //    tmp_image[j + ny*(nx-1)] = 0.6f*image[j+ ny*(nx-1)] + 0.1f*image[(j-1)+ ny*(nx-1)] + 0.1f*image[(j+1)+ ny*(nx-1)] + 0.1f*image[j+ ny*(nx-2)];
   //   }
+  
 }
 
 // Create the input image
