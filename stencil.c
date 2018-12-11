@@ -85,27 +85,41 @@ int main(int argc, char *argv[]) {
 
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image, int rank) {
 
-    float *send1 = (float *) malloc(sizeof(float) * nx);
-    float *receive1 = (float *) malloc(sizeof(float) * nx);
+  
 
-    float *send2 = (float *) malloc(sizeof(float) * nx);
-    float *receive2 = (float *) malloc(sizeof(float) * nx);
 
     int ping = 14;
     int result = 0;
     MPI_Status *status;
 
     // printf("rank %d\n", rank);
-    if ( rank == 0 ){
-      MPI_Send(send1, nx, MPI_FLOAT , 1, 0, MPI_COMM_WORLD);
+    if (rank == 0)
+    {
+
+      float *send1 = (float *)malloc(sizeof(float) * nx);
+      float *receive1 = (float *)malloc(sizeof(float) * nx);
+
+      MPI_Send(send1, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD);
       MPI_Recv(receive1, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD, status);
       printf("Sending to 1\n");
+
+      free(send1);
+      free(receive1);
     }
-    else if ( rank == 1 ){
+    else if (rank == 1)
+    {
+
+      float *send2 = (float *)malloc(sizeof(float) * nx);
+      float *receive2 = (float *)malloc(sizeof(float) * nx);
+
       MPI_Recv(receive2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
-      MPI_Send(send2, nx, MPI_FLOAT , 0, 0, MPI_COMM_WORLD);
+      MPI_Send(send2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
       printf("Received %d\n", receive2);
+
+      free(receive2);
+      free(send2);
     }
+
     // else if ( rank == 15 ){
 
     // }
@@ -113,10 +127,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
 
     }
 
-    free(send1);
-    free(send2);
-    free(receive1);
-    free(receive2);
+
 
 
     // //Corner cases cmonnnnn
