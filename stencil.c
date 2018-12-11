@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
   free(bufferTemp);
 }
 
-float *getRow(segment, image, start, end)
+float *getRow(float *segment, float *image, int start, int end)
 {
   int j = 0;
   for (int i = start; i < end; i++)
