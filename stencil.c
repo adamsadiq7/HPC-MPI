@@ -42,9 +42,9 @@ int main(int argc, char *argv[])
   float *tmp_image;
   if (rank == 0)
   {
-    image = malloc(sizeof(float) * ny * nx, 64);
+    image = _mm_malloc(sizeof(float) * ny * nx, 64);
 
-    tmp_image = malloc(sizeof(float) * ny * nx, 64);
+    tmp_image = _mm_malloc(sizeof(float) * ny * nx, 64);
 
     // Set the input image
     init_image(nx, ny, image, tmp_image);
@@ -112,8 +112,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
     float *lastRowRecv = (float *) malloc(nx * sizeof(float));
     MPI_Status *status;
 
-    MPI_Recv(lastRowRecv, nx , MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, status);
-    MPI_Send(lastRowSend, nx , MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD );
+    MPI_Sendrecv(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, lastRowRecv, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, status);
     
     free(lastRowSend);
     free(lastRowRecv);
