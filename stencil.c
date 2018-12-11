@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
     stencil(nx, ny / 16, buffer, tempBuffer, rank);
     stencil(nx, ny / 16, tempBuffer, buffer, rank);
   }
+  print("stencil done\n");
 
   // if (world_rank == 0) {
   //   sub_avgs = malloc(sizeof(float) * world_size);
@@ -109,40 +110,33 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
   {
     MPI_Status *status;
     int start = (ny - 1) * nx;
-    int finish = (ny - 1) * nx + (nx - 1);
+    int finish = (ny - 1) * nx + nx - 1;
 
-    printf("rank 0\n");
-    float *send1 = (float *)malloc(sizeof(float) * nx);
+    float *send1 = (float *)malloc(sizeof(float));
     send1 = getRow(send1, image, start, finish);
 
-    float *receive1 = (float *)malloc(sizeof(float) * nx);
+    float *receive1 = (float *)malloc(sizeof(float));
 
     MPI_Send(send1, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD);
-    printf("sent\n");
     MPI_Recv(receive1, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD, status);
-
-    printf("Sending to 1\n");
-
+    printf("received1 %f\n", receive1[0]);
     free(send1);
     free(receive1);
   }
   else if (rank == 1)
   {
     MPI_Status *status;
-    printf("rank 1\n");
 
     int start = (ny - 1) * nx;
     int finish = (ny - 1) * nx + (nx - 1);
 
-    float *send2 = (float *)malloc(sizeof(float) * nx);
+    float *send2 = (float *)malloc(sizeof(float));
     send2 = getRow(send2, image, start, finish);
 
-    float *receive2 = (float *)malloc(sizeof(float) * nx);
+    float *receive2 = (float *)malloc(sizeof(float));
     MPI_Recv(receive2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
-    printf("sent1\n");
     MPI_Send(send2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
-
-    printf("Received %f\n", receive2[0]);
+    printf("Received2 %f\n", receive2[0]);
 
     free(receive2);
     free(send2);
