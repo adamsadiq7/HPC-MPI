@@ -157,7 +157,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
 
     //3. middle cases
 
-    #pragma omp simd
+    // #pragma omp simd
     for (int j = 0; j < (nx*(nx-2)); j+=nx) {
       for(int i = 1; i<ny-1;++i){
         tmp_image[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
@@ -231,7 +231,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
       tmp_image[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
     }
 
-    #pragma omp simd
+    // #pragma omp simd
     for (int j = 0; j < (nx*(nx-2)); j+=nx) {
       for(int i = 1; i<ny-1;++i){
         tmp_image[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
@@ -343,7 +343,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
 
     //3. middle cases
 
-    #pragma omp simd
+    // #pragma omp simd
     for (int j = 0; j < (nx*(nx-2)); j+=nx) {
       for(int i = 1; i<ny-1;++i){
         tmp_image[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
