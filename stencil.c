@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include "mpi.h"
 
 // Define output file name
 #define OUTPUT_FILE "stencil.pgm"
+
+#define MASTER 0
 
 void stencil(const int nx, const int ny, float *  image, float *  tmp_image);
 void init_image(const int nx, const int ny, float *  image, float *  tmp_image);
@@ -23,6 +26,17 @@ int main(int argc, char *argv[]) {
   int nx = atoi(argv[1]);
   int ny = atoi(argv[2]);
   int niters = atoi(argv[3]);
+
+  // Initialise MPI
+  MPI_Init(&argc,&argv);
+
+  // Initialise rank and size
+  int rank;
+  int size;
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+
 
   // Allocate the image
   float *image = malloc(sizeof(float)*nx*ny);
