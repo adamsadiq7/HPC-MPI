@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   free(buffer);
   free(bufferTemp);
 
-  MPI_Finalize():
+  MPI_Finalize();
 }
 
 float *getRow(float *segment, float *image, int start, int end)
