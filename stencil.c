@@ -46,6 +46,8 @@ int main(int argc, char *argv[])
 
     // Set the input image
     init_image(nx, ny, image, tmp_image);
+
+    free(tmp_image);
   }
 
   float *buffer = malloc(sizeof(float) * nx * ny / 16);
@@ -71,7 +73,6 @@ int main(int argc, char *argv[])
 
   output_image(OUTPUT_FILE, nx, ny, image);
   free(image);
-  free(tmp_image);
   free(buffer);
   free(bufferTemp);
 }
