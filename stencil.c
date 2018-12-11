@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     stencil(nx, ny / 16, buffer, tempBuffer, rank);
     stencil(nx, ny / 16, tempBuffer, buffer, rank);
   }
-  print("stencil done\n");
+  printf("stencil done\n");
 
   // if (world_rank == 0) {
   //   sub_avgs = malloc(sizeof(float) * world_size);
