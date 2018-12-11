@@ -96,8 +96,6 @@ float *getRow(float *segment, float *image, int start, int end)
 void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank)
 {
 
-  printf("here\n");
-
   int *seven = 7;
   MPI_Status *status;
 
@@ -105,11 +103,13 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
 
   if (rank == 0)
   {
+    printf("Sending...\n");
     MPI_Send(seven, 1, MPI_INT, 15, 0, MPI_COMM_WORLD);
     printf("Sent\n");
   }
   else if (rank == 15)
   {
+    printf("Receiving...")
     MPI_Recv(fifteenHolder, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, status);
     printf("Received\n");
   }
