@@ -96,6 +96,8 @@ float *getRow(float *segment, float *image, int start, int end)
 void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank)
 {
 
+  printf("here");
+
   int *seven = 7;
   MPI_Status *status;
 
