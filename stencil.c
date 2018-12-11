@@ -96,12 +96,12 @@ float *getRow(float *segment, float *image, int start, int finish){
 
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image, int rank) {
 
-    MPI_Status *status;
+    
 
     // printf("rank %d\n", rank);
     if (rank == 0)
     {
-
+      MPI_Status *status;
       int start = (ny - 1) * nx;
       int finish = (ny-1) * nx + (nx-1);
 
@@ -121,6 +121,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
     }
     else if (rank == 1)
     {
+      MPI_Status *status;
       printf("rank 1\n");
 
       int start = (ny - 1) * nx;
@@ -130,11 +131,11 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
       send2 = getRow(send2, image, start, finish);
 
       float *receive2 = (float *)malloc(sizeof(float) * nx);
-      MPI_Recv(receive2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
+      MPI_Recv(receive2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status); 
       MPI_Send(send2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
       
 
-      printf("Received %f\n", receive2);
+      printf("Received %f\n", receive2[0]);
 
       free(receive2);
       free(send2);
