@@ -9,7 +9,7 @@
 
 #define MASTER 0
 
-void stencil(const int nx, const int ny, float *image, float *tmp_image);
+void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank);
 void init_image(const int nx, const int ny, float *image, float *tmp_image);
 void output_image(const char *file_name, const int nx, const int ny, float *image);
 double wtime(void);
