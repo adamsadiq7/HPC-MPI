@@ -157,10 +157,12 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
     MPI_Recv(firstRowRecv, nx , MPI_FLOAT, rank-1, 0, MPI_COMM_WORLD, status);
     MPI_Send(firstRowSend, nx , MPI_FLOAT, rank-1, 0, MPI_COMM_WORLD );
 
+
     for (int i = 0; i < ny; i++)
     {
       for (int j = 0; j < nx; j++)
       {
+        printf("hi\n");
         tmp_image[j + i * nx] = image[j + i * nx] * 0.6;
         if (i < 1 && j > 0 && j < nx - 1)
           tmp_image[j + i * nx] += firstRowRecv[j] + image[(j + 1) + i * nx] * 0.1 + 0.1 * image[j + (i + 1) * nx] + 0.1 * image[(j - 1) + i * nx];
