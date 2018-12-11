@@ -53,9 +53,9 @@ int main(int argc, char *argv[])
   float *buffer = malloc(sizeof(float) * nx * ny / 16);
   float *bufferTemp = malloc(sizeof(float) * nx * ny / 16);
 
-  float size = nx * ny / 16;
+  float segmentSize = nx * ny / 16;
 
-  MPI_Scatter(image, size, MPI_FLOAT, buffer, size, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  MPI_Scatter(image, segmentSize, MPI_FLOAT, buffer, segmentSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
   // Call the stencil kernel
   double tic = wtime();
@@ -85,6 +85,7 @@ float *getRow(float *segment, float *image, int start, int end)
     segment[j] = image[i];
     j++;
   }
+  return segment;
 }
 
 void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank)
