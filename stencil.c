@@ -320,29 +320,30 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
     //top cases
 
     for (int j = 1; j<nx-1; ++j){
+      printf("top cases\n");
       tmp_image[j] = image[j] * 0.6f + (image[j-1] + image[j+1] + image[j+nx] + firstRowRecv[j]) * 0.1f;
     }
 
     //bottom cases
-    
+    printf("bottom cases\n");
     for (int j = 1; j<nx-1; ++j){
       tmp_image[nx*ny-nx+j] = image[nx*ny-(nx)+j] * 0.6f + (image[nx*ny-(nx)+j-1] + image[nx*ny-(nx)+j+1] + image[nx*ny-(2*nx)+j] + lastRowRecv[j]) * 0.1f;
     }
 
     //1. left cases
-
+    printf("left cases\n");
     for (int j = 1; j<nx-1; ++j){
       tmp_image[ny*j] = image[ny*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
     }
     
     //2. right cases
-
+    printf("right cases\n");
     for (int j = 1; j<nx-1; ++j){
       tmp_image[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
     }
 
     //3. middle cases
-
+    printf("middle cases\n");
     // #pragma omp simd
     for (int j = 0; j < (nx*(nx-2)); j+=nx) {
       for(int i = 1; i<ny-1;++i){
