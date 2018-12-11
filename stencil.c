@@ -90,6 +90,8 @@ float *getRow(segment, image, start, finish){
       segment[j] = image[i];
       j++;
   }
+
+  return segment;
 }
 
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image, int rank) {
@@ -133,7 +135,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
 
       MPI_Send(send2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
       MPI_Recv(receive2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
-      
+
       printf("Received %d\n", receive2);
 
       free(receive2);
