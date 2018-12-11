@@ -84,9 +84,9 @@ int main(int argc, char *argv[]) {
 }
 
 
-float *getRow(segment, image, start, finish){
+float *getRow(*segment, *image, start, finish){
   int j = 0;
-  for (int i = start; i<finish; i++){
+  for (int i = start; i<= finish; i++){
       segment[j] = image[i];
       j++;
   }
