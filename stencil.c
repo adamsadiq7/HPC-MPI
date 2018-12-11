@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   {
     image = malloc(sizeof(float) * ny * nx);
 
-    tmp_image = alloc(sizeof(float) * ny * nx);
+    tmp_image = malloc(sizeof(float) * ny * nx);
 
     // Set the input image
     init_image(nx, ny, image, tmp_image);
