@@ -110,8 +110,8 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
       float *send2 = (float *)malloc(sizeof(float) * nx);
       float *receive2 = (float *)malloc(sizeof(float) * nx);
 
-      MPI_Recv(receive2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
       MPI_Send(send2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
+      MPI_Recv(receive2, nx, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, status);
       printf("Received %d\n", receive2);
 
       free(receive2);
