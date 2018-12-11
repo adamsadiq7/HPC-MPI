@@ -299,8 +299,7 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
   //    tmp_image[j + ny*(nx-1)] = 0.6f*image[j+ ny*(nx-1)] + 0.1f*image[(j-1)+ ny*(nx-1)] + 0.1f*image[(j+1)+ ny*(nx-1)] + 0.1f*image[j+ ny*(nx-2)];
   //   }
   
-
-  // printf("end of function\n");
+  printf("end of function\n");
 }
 
 // Create the input image
