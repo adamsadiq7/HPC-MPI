@@ -1,0 +1,112 @@
+
+stencil:3344 terminated with signal 11 at PC=40211f SP=7fffffffc5f0.  Backtrace:
+
+stencil:3343 terminated with signal 11 at PC=4049c7 SP=7fffffffc5f0.  Backtrace:
+
+stencil:3345 terminated with signal 11 at PC=40211f SP=7fffffffc5f0.  Backtrace:
+
+stencil:3346 terminated with signal 11 at PC=40211f SP=7fffffffc5f0.  Backtrace:
+
+stencil:3347 terminated with signal 11 at PC=40211f SP=7fffffffc5f0.  Backtrace:
+
+stencil:3348 terminated with signal 11 at PC=40211f SP=7fffffffc5f0.  Backtrace:
+
+stencil:3350 terminated with signal 11 at PC=40211f SP=7fffffffc5f0.  Backtrace:
+
+stencil:3349 terminated with signal 11 at PC=40211f SP=7fffffffc5f0.  Backtrace:
+
+stencil:3351 terminated with signal 11 at PC=40211f SP=7fffffffc5f0.  Backtrace:
+
+stencil:3352 terminated with signal 11 at PC=40211f SP=7fffffffc5f0.  Backtrace:
+
+stencil:3353 terminated with signal 11 at PC=40211f SP=7fffffffc5e0.  Backtrace:
+
+stencil:3354 terminated with signal 11 at PC=40211f SP=7fffffffc5e0.  Backtrace:
+
+stencil:3355 terminated with signal 11 at PC=40211f SP=7fffffffc5e0.  Backtrace:
+
+stencil:3356 terminated with signal 11 at PC=40211f SP=7fffffffc5e0.  Backtrace:
+
+stencil:3357 terminated with signal 11 at PC=40211f SP=7fffffffc5e0.  Backtrace:
+
+stencil:3358 terminated with signal 11 at PC=40364f SP=7fffffffc5e0.  Backtrace:
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0x3817)[0x4049c7]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0x249f)[0x40364f]
+stencil(main+0x16a)[0x40578a]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+stencil(stencil+0xf6f)[0x40211f]
+stencil(main+0x16a)[0x40578a]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
+stencil[0x400eb9]
+--------------------------------------------------------------------------
+mpirun has exited due to process rank 5 with PID 3348 on
+node node31-032 exiting improperly. There are two reasons this could occur:
+
+1. this process did not call "init" before exiting, but others in
+the job did. This can cause a job to hang indefinitely while it waits
+for all processes to call "init". By rule, if one process calls "init",
+then ALL processes must call "init" prior to termination.
+
+2. this process called "init", but exited without calling "finalize".
+By rule, all processes that call "init" MUST call "finalize" prior to
+exiting or it will be considered an "abnormal termination"
+
+This may have caused other processes in the application to be
+terminated by signals sent by mpirun (as reported here).
+--------------------------------------------------------------------------

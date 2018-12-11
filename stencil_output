@@ -1,0 +1,22 @@
+Running on host node31-030
+Time is Tue Dec 11 15:25:36 GMT 2018
+Directory is /panfs/panasas01/cosc/as16165/HPC-MPI
+PBS job ID is 7816521.master.cm.cluster
+This jobs runs on the following machines:
+
+iteration : 0 and rank 1
+iteration : 0 and rank 2
+iteration : 0 and rank 3
+iteration : 0 and rank 4
+iteration : 0 and rank 5
+iteration : 0 and rank 6
+iteration : 0 and rank 7
+iteration : 0 and rank 9
+iteration : 0 and rank 10
+iteration : 0 and rank 11
+iteration : 0 and rank 13
+iteration : 0 and rank 12
+iteration : 0 and rank 14
+iteration : 0 and rank 15
+iteration : 0 and rank 0
+iteration : 0 and rank 8
