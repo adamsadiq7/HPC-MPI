@@ -97,7 +97,6 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
 {
 
   int *seven = 7;
-  int five = 5;
   MPI_Status *status;
 
   int *fifteenHolder;
