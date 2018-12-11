@@ -96,11 +96,11 @@ float *getRow(float *segment, float *image, int start, int end)
 void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank)
 {
 
-  int seven = 7;
+  int *seven = 7;
   int five = 5;
   MPI_Status *status;
 
-  int fifteenHolder;
+  int *fifteenHolder;
 
   if (rank == 0)
   {
