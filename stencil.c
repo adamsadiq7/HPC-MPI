@@ -62,8 +62,8 @@ int main(int argc, char *argv[]) {
   double tic = wtime();
   for (int t = 0; t < niters; ++t) {
     // printf("iteration %d\n",t);
-    stencil(nx, ny, image, tmp_image, rank);
-    stencil(nx, ny, tmp_image, image, rank);
+    stencil(nx, ny/16, image, tmp_image, rank);
+    stencil(nx, ny/16, tmp_image, image, rank);
   }
 
   // if (world_rank == 0) {
@@ -84,9 +84,6 @@ int main(int argc, char *argv[]) {
 }
 
 void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image, int rank) {
-
-  
-
 
     int ping = 14;
     int result = 0;
@@ -124,7 +121,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
 
     // }
     else{
-
+      printf("else");
     }
 
 
