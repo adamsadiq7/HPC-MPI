@@ -127,7 +127,7 @@ void stencil(const int nx, const int ny, float *  restrict image, float *  restr
       int finish = (ny-1) * nx + (nx-1);
 
       float *send2 = (float *)malloc(sizeof(float) * nx);
-      send2 = getRow(send1, image, start, finish);
+      send2 = getRow(send2, image, start, finish);
 
       float *receive2 = (float *)malloc(sizeof(float) * nx);
 
