@@ -7,7 +7,7 @@
 #define OUTPUT_FILE "stencil.pgm"
 #define MASTER 0
 
-void stencil(const int nx, const int ny, float *image, float *tmp_image, int rank);
+void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank, int size);
 void init_image(const int nx, const int ny, float *image, float *tmp_image);
 void output_image(const char *file_name, const int nx, const int ny, float *image);
 double wtime(void);
@@ -99,7 +99,7 @@ float *extractRow(float *inputArray, float *outputArray, int start, int end)
 
   return outputArray;
 }
-void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank, int, size)
+void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank, int size)
 {
   float *firstRowSend = malloc(sizeof(float) * nx);
   float *firstRowRecv = malloc(sizeof(float) * nx);
