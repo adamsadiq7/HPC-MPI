@@ -197,7 +197,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1] + firstRowRecv[0]) * 0.1f; //comment
     tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]  + firstRowRecv[nx-1]) * 0.1f;
-    tmp_image[nx*ny-(nx)] = image[nx*ny-(nx)] * 0.6f + (image[nx*ny-(nx*2)] + image[nx*ny-(nx-1)]]) * 0.1f;
+    tmp_image[nx*ny-(nx)] = image[nx*ny-(nx)] * 0.6f + (image[nx*ny-(nx*2)] + image[nx*ny-(nx-1)]) * 0.1f;
     tmp_image[nx*ny-1] = image[nx*ny-1] * 0.6f + (image[nx*ny-(nx+1)] + image[nx*ny-2]) * 0.1f;
 
     //top cases
