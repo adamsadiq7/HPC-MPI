@@ -213,13 +213,13 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
     //1. left cases
 
-    for (int j = 1; j<nx-1; ++j){
+    for (int j = 1; j<ny-1; ++j){
       tmp_image[nx*j] = image[nx*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
     }
     
     //2. right cases
 
-    for (int j = 1; j<nx-1; ++j){
+    for (int j = 1; j<ny-1; ++j){
       tmp_image[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
     }
 
@@ -280,13 +280,13 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
     //1. left cases
 
-    for (int j = 1; j<nx-1; ++j){
+    for (int j = 1; j<ny-1; ++j){
       tmp_image[nx*j] = image[nx*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
     }
     
     //2. right cases
 
-    for (int j = 1; j<nx-1; ++j){
+    for (int j = 1; j<ny-1; ++j){
       tmp_image[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
     }
 
