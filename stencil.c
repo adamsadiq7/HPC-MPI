@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   // Allocate the images
   float *image =malloc(sizeof(float)*nx*ny);
 
-  float *tmp_image = malloc(sizeof(float)*nx*ny);;
+  float *tmp_image = malloc(sizeof(float)*nx*ny);
 
   // Initialising MPI
   MPI_Init(&argc, &argv);
@@ -62,8 +62,6 @@ int main(int argc, char *argv[]) {
     stencil(nx, ny/16, bufferTmp, buffer,rank);
   }
   double toc = wtime();
-
-
 
   float * result;
 
@@ -130,8 +128,11 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
     lastRowSend = extractRow(image,lastRowSend, lastRowStart, lastRowEnd);
 
-    MPI_Send(lastRowSend, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
-    MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank+1, MASTER, MPI_COMM_WORLD, status);
+    MPI_Sendrecv(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, lastRowRecv, nx, MPI_FLOAT, rank +1, 0, MPI_COMM_WORLD, status);
+
+
+    // MPI_Send(lastRowSend, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
+    // MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank+1, MASTER, MPI_COMM_WORLD, status);
 
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment
@@ -190,8 +191,10 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
     firstRowSend = extractRow(image,firstRowSend, firstRowStart, firstRowEnd);
 
-    MPI_Send(firstRowSend, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
-    MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank-1 , MASTER, MPI_COMM_WORLD, status);
+    MPI_Sendrecv(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, firstRowRecv, nx, MPI_FLOAT, rank -1, 0, MPI_COMM_WORLD, status);
+
+    // MPI_Send(firstRowSend, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
+    // MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank-1 , MASTER, MPI_COMM_WORLD, status);
 
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1] + firstRowRecv[0]) * 0.1f; //comment
@@ -253,12 +256,15 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
     firstRowSend = extractRow(image, firstRowSend, firstRowStart, firstRowEnd );
     lastRowSend  = extractRow(image, lastRowSend, lastRowStart, lastRowEnd );
 
+    MPI_Sendrecv(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, firstRowRecv, nx, MPI_FLOAT, rank -1, 0, MPI_COMM_WORLD, status);
 
-    MPI_Send(firstRowSend, nx, MPI_FLOAT,  rank -1, 0, MPI_COMM_WORLD);
-    MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank -1, MASTER, MPI_COMM_WORLD, status);
+    // MPI_Send(firstRowSend, nx, MPI_FLOAT,  rank -1, 0, MPI_COMM_WORLD);
+    // MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank -1, MASTER, MPI_COMM_WORLD, status);
+   
+    MPI_Sendrecv(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, lastRowRecv, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD, status);
 
-    MPI_Send(lastRowSend, nx, MPI_FLOAT,  rank +1, 0, MPI_COMM_WORLD);
-    MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank +1, MASTER, MPI_COMM_WORLD, status);
+    // MPI_Send(lastRowSend, nx, MPI_FLOAT,  rank +1, 0, MPI_COMM_WORLD);
+    // MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank +1, MASTER, MPI_COMM_WORLD, status);
 
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1] + firstRowRecv[0]) * 0.1f; //comment
