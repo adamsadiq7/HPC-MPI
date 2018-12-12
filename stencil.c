@@ -128,22 +128,16 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
 
   if(rank == MASTER){
-    printf("1\n");
     lastRowSend = extractRow(image,lastRowSend, lastRowStart, lastRowEnd);
-    printf("1.25\n");
     MPI_Send(lastRowSend, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD);
-    printf("nx - %d\n", nx);
+    printf("sent\n");
     MPI_Recv(lastRowRecv, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD, status);
-    printf("1.75\n");
+    printf("received\n");
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment
-    printf("2\n");
     tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
-    printf("3\n");
     tmp_image[nx*ny-(nx)] = image[nx*ny-(nx)] * 0.6f + (image[nx*ny-(nx*2)] + image[nx*ny-(nx-1)] + lastRowRecv[0]) * 0.1f;
-    printf("4\n");
     tmp_image[nx*ny-1] = image[nx*ny-1] * 0.6f + (image[nx*ny-(nx+1)] + image[nx*ny-2] + lastRowRecv[nx-1]) * 0.1f;
-    printf("5\n");
 
     //top cases
 
