@@ -130,8 +130,10 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
   if(rank == MASTER){
     printf("1\n");
     lastRowSend = extractRow(image,lastRowSend, lastRowStart, lastRowEnd);
+    printf("1.25\n");
     MPI_Send(lastRowSend, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
     printf("1.5\n");
+
     MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank+1, MASTER, MPI_COMM_WORLD, status);
 
     //Corner cases cmonnnnn
