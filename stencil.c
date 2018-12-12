@@ -254,7 +254,6 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
     firstRowSend = extractRow(image, firstRowSend, firstRowStart, firstRowEnd );
     lastRowSend  = extractRow(image, lastRowSend, lastRowStart, lastRowEnd );
 
-
     MPI_Send(firstRowSend, nx, MPI_FLOAT,  rank -1, 0, MPI_COMM_WORLD);
     MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank -1, MASTER, MPI_COMM_WORLD, status);
 
