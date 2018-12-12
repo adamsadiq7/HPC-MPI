@@ -129,7 +129,6 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
   if(rank == MASTER){
 
     lastRowSend = extractRow(image,lastRowSend, lastRowStart, lastRowEnd);
-    
 
     MPI_Send(lastRowSend, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
     MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank+1, MASTER, MPI_COMM_WORLD, status);
@@ -154,13 +153,13 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
     //1. left cases
 
-    for (int j = 1; j<nx-1; ++j){
+    for (int j = 1; j<ny-1; ++j){
       tmp_image[nx*j] = image[nx*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
     }
     
     //2. right cases
 
-    for (int j = 1; j<nx-1; ++j){
+    for (int j = 1; j<ny-1; ++j){
       tmp_image[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
     }
 
