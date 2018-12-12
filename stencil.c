@@ -129,7 +129,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
   if(rank == MASTER){
     lastRowSend = extractRow(image,lastRowSend, lastRowStart, lastRowEnd);
-    MPI_Send(lastRowSend, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD);
+    MPI_Ssend(lastRowSend, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD);
     printf("sent\n");
     MPI_Recv(lastRowRecv, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD, status);
     printf("received\n");
@@ -190,7 +190,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
     firstRowSend = extractRow(image,firstRowSend, firstRowStart, firstRowEnd);
 
-    MPI_Send(firstRowSend, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
+    MPI_Ssend(firstRowSend, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
     MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank-1 , MASTER, MPI_COMM_WORLD, status);
 
     //Corner cases cmonnnnn
@@ -254,10 +254,10 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
     lastRowSend  = extractRow(image, lastRowSend, lastRowStart, lastRowEnd );
 
 
-    MPI_Send(firstRowSend, nx, MPI_FLOAT,  rank -1, 0, MPI_COMM_WORLD);
+    MPI_Ssend(firstRowSend, nx, MPI_FLOAT,  rank -1, 0, MPI_COMM_WORLD);
     MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank -1, MASTER, MPI_COMM_WORLD, status);
 
-    MPI_Send(lastRowSend, nx, MPI_FLOAT,  rank +1, 0, MPI_COMM_WORLD);
+    MPI_Ssend(lastRowSend, nx, MPI_FLOAT,  rank +1, 0, MPI_COMM_WORLD);
     MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank +1, MASTER, MPI_COMM_WORLD, status);
 
     //Corner cases cmonnnnn
