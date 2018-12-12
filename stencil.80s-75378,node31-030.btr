@@ -1,6 +1,0 @@
-
-stencil:75378 terminated with signal 11 at PC=403198 SP=7fffffffc5c0.  Backtrace:
-stencil(stencil+0x1fe8)[0x403198]
-stencil(main+0x16a)[0x40543a]
-/lib64/libc.so.6(__libc_start_main+0xfd)[0x2aaaabf73d5d]
-stencil[0x400eb9]
