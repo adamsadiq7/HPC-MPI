@@ -192,8 +192,8 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
     // MPI_Sendrecv(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, firstRowRecv, nx, MPI_FLOAT, rank -1, 0, MPI_COMM_WORLD, status);
 
-    MPI_Send(firstRowSend, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
     MPI_Recv(firstRowRecv, nx+1, MPI_FLOAT, rank-1 , MASTER, MPI_COMM_WORLD, status);
+    MPI_Send(firstRowSend, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
 
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1] + firstRowRecv[0]) * 0.1f; //comment
