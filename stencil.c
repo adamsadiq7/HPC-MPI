@@ -131,11 +131,10 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
     printf("1\n");
     lastRowSend = extractRow(image,lastRowSend, lastRowStart, lastRowEnd);
     printf("1.25\n");
-    MPI_Send(lastRowSend, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
+    MPI_Send(lastRowSend, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD);
     printf("1.5\n");
-
-    MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank+1, MASTER, MPI_COMM_WORLD, status);
-
+    MPI_Recv(lastRowRecv, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD, status);
+    printf("1.75\n");
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment
     printf("2\n");
