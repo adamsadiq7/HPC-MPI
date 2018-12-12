@@ -120,7 +120,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
   lastRowStart = (ny-1)* nx;
   lastRowEnd   = (ny-1)* nx + (nx-1);
 
-//--------INDEX OF THE ROWS ------//
+//--------INDEX OF THE ROWS ------// 
   MPI_Status * status;
 
 
