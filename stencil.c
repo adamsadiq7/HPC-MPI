@@ -129,6 +129,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
   if(rank == MASTER){
     lastRowSend = extractRow(image,lastRowSend, lastRowStart, lastRowEnd);
+    printf("Sending...\n");
     MPI_Ssend(lastRowSend, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD);
     printf("sent\n");
     MPI_Recv(lastRowRecv, nx, MPI_FLOAT, 1, 0, MPI_COMM_WORLD, status);
