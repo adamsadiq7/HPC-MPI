@@ -77,19 +77,18 @@ int main(int argc, char *argv[]) {
         displs[i] = i*sectionSize;
         scounts[i] = sectionSize;
     }
-    scounts[size-1] = nx*remainderSize;
+    scounts[size - 1] = nx * remainderSize;
 
-    MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD); 
+    MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
+    //MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-  //MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
- 
-
-  // Call the stencil kernel
-  double tic = wtime();
-  for (int t = 0; t < niters; ++t) {
-    stencil(nx, ny/size, buffer, bufferTmp,rank,size);
-    stencil(nx, ny/size, bufferTmp, buffer,rank,size);
+    // Call the stencil kernel
+    double tic = wtime();
+    for (int t = 0; t < niters; ++t)
+    {
+      stencil(nx, ny / size, buffer, bufferTmp, rank, size);
+      stencil(nx, ny / size, bufferTmp, buffer, rank, size);
   }
   double toc = wtime();
 
@@ -104,7 +103,7 @@ int main(int argc, char *argv[]) {
   //   result[i] = buffer[i];
   // } 
 
-  MPI_Gatherv(bufferTmp, scounts, MPI_FLOAT, result, scounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  MPI_Gatherv(bufferTmp, sectionSize, MPI_FLOAT, result, scounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
   // MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
 
