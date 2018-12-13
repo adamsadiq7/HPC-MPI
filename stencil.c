@@ -66,7 +66,10 @@ int main(int argc, char *argv[]) {
   displs[size-1] = (size-1) * sectionSize * nx;
   scounts[size - 1] = remainderSize * nx;
 
-
+  for (int i = 0; i < nx*ny; i++)
+  {
+    printf("%f\n", image[i]);
+  }
 
 
 
@@ -108,10 +111,6 @@ int main(int argc, char *argv[]) {
   printf(" runtime: %lf s\n", toc-tic);
   printf("------------------------------------\n");
 
-  for (int i = 0; i < nx*ny; i++)
-  {
-    printf("%f\n", image[i]);
-  }
 
 
   
