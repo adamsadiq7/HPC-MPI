@@ -71,9 +71,9 @@ int main(int argc, char *argv[]) {
     //int root, rbuf[100], i, *displs, *scounts; 
 
 
-    int scounts = (int *)malloc(size*sizeof(int)); 
-    int displs = (int *)malloc(size*sizeof(int)); 
-    for (i=0; i<size-1; ++i) { 
+    int scounts = (int *)malloc(sectionSize*sizeof(int)); 
+    int displs = (int *)malloc(sectionSize*sizeof(int)); 
+    for (int i=0; i<size-1; ++i) { 
         displs[i] = i*sectionSize;
         scounts[i] = sectionSize;
     }
