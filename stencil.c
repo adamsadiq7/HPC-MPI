@@ -142,11 +142,15 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
   if(rank == 0){
 
+    printf("1\n");
+
     send_last_row = find_row(image,send_last_row, bottom_start, bottom_end);
     
 
     MPI_Ssend(send_last_row, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
+    printf("2\n");
     MPI_Recv(receive_last_row, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, &status);
+    printf("3\n");
 
      for(int i = 0 ; i< ny ; i++){
       for(int j =0 ; j< nx ; j++){
