@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
   }
 
   int sectionSize = ny/size;
-  float * buffer = malloc(sizeof(float) * );
+  float * buffer = malloc(sizeof(float));
   float *bufferTmp = malloc(sizeof(float) * sectionSize);
 
   
