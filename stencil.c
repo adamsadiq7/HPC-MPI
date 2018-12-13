@@ -48,28 +48,23 @@ int main(int argc, char *argv[]) {
 
   }
 
-  int sectionSize = nx*ny/size;
+  int sectionSize = ny/size;
   float * buffer = malloc(sizeof(float) * sectionSize);
   float *bufferTmp = malloc(sizeof(float) * sectionSize);
 
   
-  int remainderSize = (ny*nx) % size;
+  int remainderSize = ny % size;
 
   int *scounts = (int *)malloc(size * sizeof(int));
   int *displs = (int *)malloc(size * sizeof(int));
-  for (int i = 0; i < size ; ++i)
-  {
-    if(i < size-1){
-      displs[i] = i * sectionSize;
-      scounts[i] = sectionSize;
-    }
-    else{
-      displs[i] = i * sectionSize + remainderSize*nx;
-      scounts[size - 1] = sectionSize + remainderSize*nx;
 
-    }
+  for (int i = 0; i < size - 1; ++i)
+  {
+    displs[i] = i * sectionSize * nx;
+    scounts[i] = sectionSize * nx;
   }
-  
+  displs[size-1] = (size-1) * sectionSize * nx;
+  scounts[size - 1] = remainderSize * nx;
 
   MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
@@ -89,13 +84,14 @@ int main(int argc, char *argv[]) {
 
   result = malloc(sizeof(float)*ny*nx);
   
-  MPI_Gatherv(bufferTmp, sectionSize, MPI_FLOAT, result, scounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  // MPI_Gatherv(bufferTmp, sectionSize, MPI_FLOAT, result, scounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
   
   // MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
 
 
   if(rank==0){
-    output_image(OUTPUT_FILE, nx, ny, result);
+    printf("done\n");
+    // output_image(OUTPUT_FILE, nx, ny, result);
   
   }
   MPI_Finalize();
