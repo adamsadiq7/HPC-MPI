@@ -11,7 +11,6 @@
 void stencil(const int nx, const int ny, float * image, float * tmp_image,int rank,int size);
 void init_image(const int nx, const int ny, float * image, float * tmp_image);
 void output_image(const char * file_name, const int nx, const int ny, float *image);
-float *find_row(float *inputArray, float *outputArray, int start, int end);
 double wtime(void);
 int main(int argc, char *argv[]) {
 
@@ -55,40 +54,25 @@ int main(int argc, char *argv[]) {
   int segmentSize = ny / size;
   int remainderSize = ny % size;
 
-  // int start, end;
+  int *scounts = (int *)malloc(size * sizeof(int));
+  int *displs = (int *)malloc(size * sizeof(int));
+  for (int i = 0; i < size - 1; ++i)
+  {
+    displs[i] = i * sectionSize;
+    scounts[i] = sectionSize;
+  }
+  scounts[size - 1] = nx * remainderSize;
 
-  // start = rank * nx * segmentSize;
-  // if (rank != size - 1){
-  //   end = (rank+1) * nx * segmentSize  - 1;
-  // }
-  // else{
-  //   end = nx * ny - 1;
-  // }
+  MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-  //buffer = find_row(image, buffer, start, end);
-  
-    //int gsize,*sendbuf; 
-    //int root, rbuf[100], i, *displs, *scounts; 
+  //MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+ 
 
-
-    int *scounts = (int *)malloc(size*sizeof(int)); 
-    int *displs = (int *)malloc(size*sizeof(int)); 
-    for (int i=0; i<size-1; ++i) { 
-        displs[i] = i*sectionSize;
-        scounts[i] = sectionSize;
-    }
-    scounts[size - 1] = nx * remainderSize;
-
-    MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
-
-    //MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
-
-    // Call the stencil kernel
-    double tic = wtime();
-    for (int t = 0; t < niters; ++t)
-    {
-      stencil(nx, ny / size, buffer, bufferTmp, rank, size);
-      stencil(nx, ny / size, bufferTmp, buffer, rank, size);
+  // Call the stencil kernel
+  double tic = wtime();
+  for (int t = 0; t < niters; ++t) {
+    stencil(nx, ny/size, buffer, bufferTmp,rank,size);
+    stencil(nx, ny/size, bufferTmp, buffer,rank,size);
   }
   double toc = wtime();
 
@@ -97,18 +81,13 @@ int main(int argc, char *argv[]) {
   float * result;
 
   result = malloc(sizeof(float)*ny*nx);
-
-  // for (int i = start; i <= end; ++i)
-  // {
-  //   result[i] = buffer[i];
-  // } 
-
+  
   MPI_Gatherv(bufferTmp, sectionSize, MPI_FLOAT, result, scounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-  // MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
 
   if(rank==0){
     output_image(OUTPUT_FILE, nx, ny, result);
+  
   }
   MPI_Finalize();
 
@@ -262,19 +241,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
       }
     }
 
-
-
   }
-
-  float *sendBuffer = malloc(sizeof(float)*nx*ny);
-
-  for (int i = 0; i < ny; i++){
-    for (int j = 0; j< nx; j++){
-      sendBuffer[j + (i*nx)] = tmp_image[j + (i*nx)];
-    }
-  }
-
-  // MPI_Ssend(sendBuffer, nx*ny, MPI_FLOAT,  MASTER, 0, MPI_COMM_WORLD);
 
 
  }
