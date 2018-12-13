@@ -51,21 +51,7 @@ int main(int argc, char *argv[]) {
   float * buffer = malloc(sizeof(float) * sectionSize);
   float * bufferTmp = malloc(sizeof(float) * sectionSize);
 
-  int segmentSize = ny / size;
-  int remainderSize = ny % size;
-
-  int *scounts = (int *)malloc(size * sizeof(int));
-  int *displs = (int *)malloc(size * sizeof(int));
-  for (int i = 0; i < size - 1; ++i)
-  {
-    displs[i] = i * sectionSize;
-    scounts[i] = sectionSize;
-  }
-  scounts[size - 1] = nx * remainderSize;
-
-  MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
-
-  //MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
  
 
   // Call the stencil kernel
@@ -82,7 +68,7 @@ int main(int argc, char *argv[]) {
 
   result = malloc(sizeof(float)*ny*nx);
   
-  MPI_Gatherv(bufferTmp, sectionSize, MPI_FLOAT, result, scounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
 
 
   if(rank==0){
