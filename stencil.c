@@ -1,33 +1,18 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include "mpi.h"
 
-// Define output file name
+// Define output file name - should be final
 #define OUTPUT_FILE "stencil.pgm"
 
-void stencil(const int nx, const int ny, float *  image, float *  tmp_image);
-void init_image(const int nx, const int ny, float *  image, float *  tmp_image);
+
+
+void stencil(const int nx, const int ny, float * image, float * tmp_image,int rank,int size);
+void init_image(const int nx, const int ny, float * image, float * tmp_image);
 void output_image(const char * file_name, const int nx, const int ny, float *image);
 double wtime(void);
-
-#define MASTER 0
-
 int main(int argc, char *argv[]) {
-
-  int rank;                 /* rank of process */
-  int size;                 /* number of processes started */
-
-  MPI_Init( &argc, &argv );
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-  /* check whether the initialisation was successful */
-  // MPI_Initialized(&flag);
-  // if ( flag != TRUE )
-  //   MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
-  // }
 
   // Check usage
   if (argc != 4) {
@@ -36,114 +21,280 @@ int main(int argc, char *argv[]) {
   }
 
   // Initiliase problem dimensions from command line arguments
+
   int nx = atoi(argv[1]);
   int ny = atoi(argv[2]);
   int niters = atoi(argv[3]);
 
-  // Allocate the image
-  float *image = malloc(sizeof(float)*nx*ny);
-  float *tmp_image = malloc(sizeof(float)*nx*ny);
-  float *temp_image = malloc(sizeof(float) * nx * (ny/16));
+  // Allocate the images
+  float *image =malloc(sizeof(float)*nx*ny);
 
-  float sectionSize = nx*(ny/16);
+  float *tmp_image = malloc(sizeof(float)*nx*ny);;
 
-  // Set the input image
-  init_image(nx, ny, image, tmp_image);
+  // Initialising MPI
+  MPI_Init(&argc, &argv);
+  int rank;
+  int size;
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  // MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  if(rank == 0){
+    image =malloc(sizeof(float)*ny*nx);
+    tmp_image = malloc(sizeof(float)*ny*nx);
+    
+    // Set the input image
+    init_image(nx, ny, image, tmp_image);
 
-  if (rank == MASTER){
-      float *temp_image = malloc(sizeof(float) * nx * (ny/16));
   }
 
-  MPI_Scatter(image, sectionSize, MPI_FLOAT, temp_image, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  int sectionSize = nx * (ny/size);
 
+  //changing remainder:
+  int remainder_section_size = (ny % size ) * nx;
+  
+  float * bufferTmp;
+  float * buffer;
+
+  //array of our group size
+  if(rank == size-1) {
+    buffer = (float*) malloc(sizeof(float) * (sectionSize + remainder_section_size));
+    bufferTmp = (float*)malloc(sizeof(float) * (sectionSize + remainder_section_size));
+  } else {
+    buffer = (float*)malloc(sizeof(float) * sectionSize);
+    bufferTmp = (float*)malloc(sizeof(float) * sectionSize);
+  }
+
+  int* sendcounts = (int*) malloc(sizeof(int)  * size) ;
+  int* displs = (int*) malloc(sizeof(int) * size);
+
+  for(int i = 0; i < size - 1; i++) {
+    displs[i] = i * sectionSize;
+    sendcounts[i] = sectionSize;
+  }
+
+  displs[size-1] = (size-1) * sectionSize;
+  sendcounts[size-1] = sectionSize + remainder_section_size;
+
+
+  //float * buffer = malloc(sizeof(float) * sectionSize);
+  //float * bufferTmp = malloc(sizeof(float) * sectionSize);
+
+  //MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  MPI_Scatterv(image, sendcounts, displs, MPI_FLOAT, buffer ,sendcounts[rank],MPI_FLOAT, 0, MPI_COMM_WORLD);
+
+  int no_of_rows = (rank == size-1) ? ny/size + ny%size : ny/size;
+
+  
+  
+  
 
   // Call the stencil kernel
   double tic = wtime();
   for (int t = 0; t < niters; ++t) {
-    stencil(nx, ny, image, tmp_image);
-    stencil(nx, ny, tmp_image, image);
+    stencil(nx, no_of_rows, buffer, bufferTmp,rank,size);
+    stencil(nx, no_of_rows, bufferTmp, buffer,rank,size);
   }
-
-  // if (world_rank == 0) {
-  //   sub_avgs = malloc(sizeof(float) * world_size);
-  // }
-  // MPI_Gather(&sub_avg, 1, MPI_FLOAT, sub_avgs, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
-
-  // printf("size is %d\n", size);
-
   double toc = wtime();
 
-  // printf("------------------------------------\n");
-  // printf(" runtime: %lf s\n", toc-tic);
-  // printf("------------------------------------\n");
 
-  output_image(OUTPUT_FILE, nx, ny, image);
+
+  float * result;
+
+  result = malloc(sizeof(float)*ny*nx);
+  
+  //MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
+  MPI_Gatherv(bufferTmp, sendcounts[rank], MPI_FLOAT, result, sendcounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
+
+
+  if(rank==0){
+    output_image(OUTPUT_FILE, nx, ny, result);
+  
+  }
+
+  MPI_Finalize();
+
+
+  // Output
+  printf("------------------------------------\n");
+  printf(" runtime: %lf s\n", toc-tic);
+  printf("------------------------------------\n");
+
+
+
+
+  
+  
   free(image);
 }
 
-void stencil(const int nx, const int ny, float *  restrict image, float *  restrict tmp_image) {
+
+float * find_row(float* values,float * offset_array, int start,int end){
+  for( int i =start ; i<= end; i++){
+    offset_array[i-start] = values[i];
+  }
+
+  return offset_array;
+}
+void stencil(const int nx, const int ny,  float *restrict image, float *restrict tmp_image, int rank,int size) {
+
+
+  float * send_first_row = malloc(sizeof(float)* nx );
+  float * receive_first_row = malloc(sizeof(float)* nx );  
+
+  float * send_last_row = malloc(sizeof(float)* nx );
+  float * receive_last_row = malloc(sizeof(float)* nx );
   
-    //Corner cases cmonnnnn
-    tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment   
-    tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
-    tmp_image[nx*ny-(nx)] = image[nx*ny-(nx)] * 0.6f + (image[nx*ny-(nx*2)] + image[nx*ny-(nx-1)]) * 0.1f;
-    tmp_image[nx*ny-1] = image[nx*ny-1] * 0.6f + (image[nx*ny-(nx+1)] + image[nx*ny-2]) * 0.1f;
+  //int start, end, bottom_start, bottom_end;
 
-    //top cases
 
-    for (int j = 1; j<nx-1; ++j){
-      tmp_image[j] = image[j] * 0.6f + (image[j-1] + image[j+1] + image[j+nx]) * 0.1f;
-    }
+  int start = 0;
+  int end = nx-1;
+  int bottom_start = (ny-1)* nx;
+  int bottom_end   = (ny-1)* nx + (nx-1);
 
-    //bottom cases
+  MPI_Status status;
+
+
+  if(rank == 0){
+
+    send_last_row = find_row(image,send_last_row, bottom_start, bottom_end);
     
-    for (int j = 1; j<nx-1; ++j){
-      tmp_image[nx*ny-nx+j] = image[nx*ny-(nx)+j] * 0.6f + (image[nx*ny-(nx)+j-1] + image[nx*ny-(nx)+j+1] + image[nx*ny-(2*nx)+j]) * 0.1f;
+
+    MPI_Ssend(send_last_row, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
+    MPI_Recv(receive_last_row, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, &status);
+
+     for(int i = 0 ; i< ny ; i++){
+      for(int j =0 ; j< nx ; j++){
+        
+
+        tmp_image[j+i*nx] = image[j+i*nx] *0.6f;
+        if(i>0)     tmp_image[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
+        if(j>0)     tmp_image[j+i*nx] += image[j-1 +i*nx] * 0.1f;
+        if(i<ny-1)  tmp_image[j+i*nx] += image[j + (i+1)*nx] *0.1f;
+        if(j<nx-1)  tmp_image[j+i*nx] += image[j+1 + i*nx] * 0.1f;
+        if(i==ny-1) tmp_image[j+i*nx] += receive_last_row[j] * 0.1f;
+      }
     }
 
-    //1. left cases
+  }
+  else if(rank == size - 1){
 
-    for (int j = 1; j<nx-1; ++j){
-      tmp_image[ny*j] = image[ny*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
+    if(size%2 == 0) {
+      send_first_row = find_row(image,send_first_row, start, end);
+      MPI_Recv(receive_first_row, nx, MPI_FLOAT, rank-1 , 0, MPI_COMM_WORLD, &status);   
+      MPI_Ssend(send_first_row, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
     }
+    else{
+      send_first_row = find_row(image,send_first_row, start, end);
+      MPI_Ssend(send_first_row, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
+      MPI_Recv(receive_first_row, nx, MPI_FLOAT, rank-1 , 0, MPI_COMM_WORLD, &status);   
+    }
+
+
     
-    //2. right cases
+    
 
-    for (int j = 1; j<nx-1; ++j){
-      tmp_image[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
+     for(int i = 0 ; i< ny ; i++){
+      for(int j =0 ; j< nx ; j++){
+        
+        tmp_image[j+i*nx] = image[j+i*nx] *0.6f;
+
+        if(i==0)    tmp_image[j+i*nx] += receive_first_row[j]*0.1f; 
+        if(i>0)     tmp_image[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
+        if(j>0)     tmp_image[j+i*nx] += image[j-1 +i*nx] * 0.1f;
+        if(i<ny-1)  tmp_image[j+i*nx] += image[j + (i+1)*nx] *0.1f;
+        if(j<nx-1)  tmp_image[j+i*nx] += image[j+1 + i*nx] * 0.1f;
+        
+      }
     }
 
-    //3. middle cases
+  }
+  else if(rank % 2 == 1){
+    
+    send_first_row = find_row(image, send_first_row, start, end );
+    send_last_row  = find_row(image, send_last_row, bottom_start, bottom_end );
 
-    #pragma omp simd
-    for (int j = 0; j < (nx*(nx-2)); j+=nx) {
-      for(int i = 1; i<ny-1;++i){
-        tmp_image[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
+    MPI_Recv(receive_first_row, nx, MPI_FLOAT, rank -1, 0, MPI_COMM_WORLD, &status);
+    MPI_Ssend(send_first_row, nx, MPI_FLOAT,  rank -1, 0, MPI_COMM_WORLD);
+    
+
+    MPI_Recv(receive_last_row, nx, MPI_FLOAT, rank +1, 0, MPI_COMM_WORLD, &status);
+    MPI_Ssend(send_last_row, nx, MPI_FLOAT,  rank +1, 0, MPI_COMM_WORLD);
+    
+   
+    
+
+    for(int i = 0 ; i< ny ; i++){
+      for(int j =0 ; j< nx ; j++){
+        
+
+        tmp_image[j+i*nx] = image[j+i*nx] *0.6f;
+
+        if(i==0)    tmp_image[j+i*nx] += receive_first_row[j]*0.1f; 
+        if(i>0)     tmp_image[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
+        if(j>0)     tmp_image[j+i*nx] += image[j-1 +i*nx] * 0.1f;
+        if(i<ny-1)  tmp_image[j+i*nx] += image[j + (i+1)*nx] *0.1f;
+        if(j<nx-1)  tmp_image[j+i*nx] += image[j+1 + i*nx] * 0.1f;
+        if(i == ny-1)tmp_image[j+i*nx] += receive_last_row[j] * 0.1f;
       }
     }
 
 
-}
+  }else if(rank % 2==0){
+    send_first_row = find_row(image, send_first_row, start, end );
+    send_last_row  = find_row(image, send_last_row, bottom_start, bottom_end );
+
+    MPI_Ssend(send_first_row, nx, MPI_FLOAT,  rank -1, 0, MPI_COMM_WORLD);
+    MPI_Recv(receive_first_row, nx, MPI_FLOAT, rank -1, 0, MPI_COMM_WORLD, &status);
+    
+    
+    MPI_Ssend(send_last_row, nx, MPI_FLOAT,  rank +1, 0, MPI_COMM_WORLD);
+    MPI_Recv(receive_last_row, nx, MPI_FLOAT, rank +1, 0, MPI_COMM_WORLD, &status);
+    
+    
+   
+    
+
+    for(int i = 0 ; i< ny ; i++){
+      for(int j =0 ; j< nx ; j++){
+        
+
+        tmp_image[j+i*nx] = image[j+i*nx] *0.6f;
+
+        if(i==0)    tmp_image[j+i*nx] += receive_first_row[j]*0.1f; 
+        if(i>0)     tmp_image[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
+        if(j>0)     tmp_image[j+i*nx] += image[j-1 +i*nx] * 0.1f;
+        if(i<ny-1)  tmp_image[j+i*nx] += image[j + (i+1)*nx] *0.1f;
+        if(j<nx-1)  tmp_image[j+i*nx] += image[j+1 + i*nx] * 0.1f;
+        if(i == ny-1)tmp_image[j+i*nx] += receive_last_row[j] * 0.1f;
+      }
+    }
+
+  }
+
+
+ }
 
 // Create the input image
-void init_image(const int nx, const int ny, float *  image, float *  tmp_image) {
+void init_image(const int nx, const int ny, float * image, float * tmp_image) {
   // Zero everything
   for (int j = 0; j < ny; ++j) {
     for (int i = 0; i < nx; ++i) {
-      image[j+i*ny] = 0.0;
-      tmp_image[j+i*ny] = 0.0;
+     
+     image[j+ny*i] = 0.0;
+     tmp_image[j+ny*i] = 0.0;
     }
   }
 
   // Checkerboard
-  for (int j = 0; j < 8; ++j) {
-    for (int i = 0; i < 8; ++i) {
-      for (int jj = j*ny/8; jj < (j+1)*ny/8; ++jj) {
-        for (int ii = i*nx/8; ii < (i+1)*nx/8; ++ii) {
+   
+  for (int i = 0; i < 8; ++i) {
+    for (int j = 0; j < 8; ++j) {
+      for (int ii = i*ny/8; ii < (i+1)*ny/8; ++ii) {
+        for (int jj = j*nx/8; jj < (j+1)*nx/8; ++jj) {
           if ((i+j)%2)
           image[jj+ii*ny] = 100.0;
+
         }
       }
     }
@@ -167,21 +318,23 @@ void output_image(const char * file_name, const int nx, const int ny, float *ima
   // This is used to rescale the values
   // to a range of 0-255 for output
   double maximum = 0.0;
-  for (int j = 0; j < ny; ++j) {
-    for (int i = 0; i < nx; ++i) {
-      if (image[j+i*ny] > maximum)
-        maximum = image[j+i*ny];
+  for (int i = 0; i < ny; ++i) {
+    for (int j = 0; j < nx; ++j) {
+     if (image[j+i*ny] > maximum)
+       maximum = image[j+i*ny];
+
     }
   }
 
   // Output image, converting to numbers 0-255
-  for (int j = 0; j < ny; ++j) {
-    for (int i = 0; i < nx; ++i) {
-      fputc((char)(255.0*image[j+i*ny]/maximum), fp);
+  for (int i = 0; i < ny; ++i) {
+    for (int j = 0; j < nx; ++j) {
+      //fputc((char)(255.0*image[j+ny*i]/maximum), fp);
+      fputc((char)(255.0*image[j+ny*i]/maximum),fp);
     }
   }
 
-  // Close the file
+  // Close the file 
   fclose(fp);
 
 }
