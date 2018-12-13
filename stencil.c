@@ -53,7 +53,24 @@ int main(int argc, char *argv[])
   float *buffer = malloc(sizeof(float) * sectionSize);
   float *bufferTmp = malloc(sizeof(float) * sectionSize);
 
-  MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, MASTER, MPI_COMM_WORLD);
+  int segmentSize = ny / size;
+  int remainderSize = ny % size;
+
+  int start, end;
+
+  start = rank * nx * segmentSize;
+  if (rank != size - 1)
+  {
+    end = rank * nx * segmentSize + (nx * segmentSize) - 1;
+  }
+  else
+  { 
+    end = nx * ny - 1;
+  }
+
+  buffer = extractRow(image, buffer, start, end);
+
+  // MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, MASTER, MPI_COMM_WORLD);
 
   // Call the stencil kernel
   double tic = wtime();
