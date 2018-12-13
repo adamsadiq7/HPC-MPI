@@ -68,6 +68,8 @@ int main(int argc, char *argv[]) {
 
   MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, scounts[rank], MPI_FLOAT, 0, MPI_COMM_WORLD);
 
+  // MPI_Scatterv(const void *sendbuf, const int *sendcounts, const int *displs,MPI_Datatype sendtype, void *recvbuf, int recvcount,MPI_Datatype recvtype,int root, MPI_Comm comm)
+
   // MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
   // Call the stencil kernel
