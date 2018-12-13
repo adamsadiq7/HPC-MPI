@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
   //   result[i] = buffer[i];
   // } 
 
-  MPI_Gatherv(bufferTmp, scounts, MPI_FLOAT, result, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  MPI_Gatherv(bufferTmp, scounts, MPI_FLOAT, result, scounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
   // MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
 
@@ -275,7 +275,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
     }
   }
 
-  MPI_Ssend(sendBuffer, nx*ny, MPI_FLOAT,  MASTER, 0, MPI_COMM_WORLD);
+  // MPI_Ssend(sendBuffer, nx*ny, MPI_FLOAT,  MASTER, 0, MPI_COMM_WORLD);
 
 
  }
