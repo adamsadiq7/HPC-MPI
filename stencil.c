@@ -11,7 +11,7 @@
 void stencil(const int nx, const int ny, float * image, float * tmp_image,int rank,int size);
 void init_image(const int nx, const int ny, float * image, float * tmp_image);
 void output_image(const char * file_name, const int nx, const int ny, float *image);
-float *extractRow(float *inputArray, float *outputArray, int start, int end);
+float *find_row(float *inputArray, float *outputArray, int start, int end);
 double wtime(void);
 int main(int argc, char *argv[]) {
 
