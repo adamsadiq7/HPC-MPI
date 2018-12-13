@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
     end = nx * ny - 1;
   }
 
+//please work
   buffer = extractRow(image, buffer, start, end);
 
   // MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, MASTER, MPI_COMM_WORLD);
