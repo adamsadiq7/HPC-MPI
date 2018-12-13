@@ -130,10 +130,13 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
     lastRowSend = extractRow(image,lastRowSend, lastRowStart, lastRowEnd);
 
     // MPI_Sendrecv(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, lastRowRecv, nx, MPI_FLOAT, rank +1, 0, MPI_COMM_WORLD, status);
-
+    printf("Rank 0 is Sending...\n");
     MPI_Send(lastRowSend, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
+    printf("Rank 0 has Sent...\n");
+    printf("Rank 0 is receiving...\n");
     MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank+1, MASTER, MPI_COMM_WORLD, status);
-
+    printf("Rank 0 has received\n");
+    
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment
     tmp_image[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
@@ -192,9 +195,12 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
     firstRowSend = extractRow(image, firstRowSend, firstRowStart, firstRowEnd);
 
     // MPI_Sendrecv(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, firstRowRecv, nx, MPI_FLOAT, rank -1, 0, MPI_COMM_WORLD, status);
-
+    printf("Rank 15 is Receiving...\n");
     MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank-1 , MASTER, MPI_COMM_WORLD, status);
+    printf("Rank 15 has received.\n");
+    printf("Rank 0 is sending...\n");
     MPI_Send(firstRowSend, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
+    printf("Rank 0 has sent.\n");
 
     //Corner cases cmonnnnn
     tmp_image[0] = image[0] * 0.6f + (image[nx] + image[1] + firstRowRecv[0]) * 0.1f; //comment
@@ -258,17 +264,34 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
     if (rank % 2 == 0)
     {
+      printf("Rank %d is sending...\n", rank);
       MPI_Send(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
+      printf("Rank %d has sent.\n", rank);
+      printf("Rank %d is receiving...\n", rank);
       MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank - 1, MASTER, MPI_COMM_WORLD, status);
+      printf("Rank %d has recieved.\n", rank);
+      printf("Rank %d is sending...\n", rank);
       MPI_Send(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD);
+      printf("Rank %d has sent.\n", rank);
+      printf("Rank %d is receiving...\n", rank);      
       MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank + 1, MASTER, MPI_COMM_WORLD, status);
+      printf("Rank %d has recieved.\n", rank);
+
     }
     else
     {
+      printf("Rank %d is receiving...\n", rank);
       MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank - 1, MASTER, MPI_COMM_WORLD, status);
+      printf("Rank %d has recieved.\n", rank);
+      printf("Rank %d is sending...\n", rank);
       MPI_Send(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
+      printf("Rank %d has sent.\n", rank);
+      printf("Rank %d is receiving...\n", rank);      
       MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank + 1, MASTER, MPI_COMM_WORLD, status);
+      printf("Rank %d has recieved.\n", rank);
+      printf("Rank %d is sending...\n", rank);
       MPI_Send(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD);
+      printf("Rank %d has sent.\n", rank);
     }
 
     // MPI_Sendrecv(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, firstRowRecv, nx, MPI_FLOAT, rank -1, 0, MPI_COMM_WORLD, status);
