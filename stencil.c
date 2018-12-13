@@ -122,7 +122,7 @@ float * find_row(float* values,float * offset_array, int start,int end){
 }
 void stencil(const int nx, const int ny,  float *restrict image, float *restrict tmp_image, int rank,int size) {
 
-
+  printf("we're here\n");
   float * send_first_row = malloc(sizeof(float)* nx );
   float * receive_first_row = malloc(sizeof(float)* nx );  
 
