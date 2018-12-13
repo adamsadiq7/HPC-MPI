@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include <math.h>
 #include "mpi.h"
 
 // Define output file name - should be final
@@ -48,42 +47,52 @@ int main(int argc, char *argv[]) {
 
   }
 
-  int sectionSize = ny/size;
-  float * buffer = malloc(sizeof(float));
-  float *bufferTmp = malloc(sizeof(float) * sectionSize);
+  int sectionSize = nx * (ny/size);
+
+  //changing remainder:
+  int remainder_section_size = (ny % size ) * nx;
+  
+  float * bufferTmp;
+  float * buffer;
+
+  //array of our group size
+  if(rank == size-1) {
+    buffer = (float*) malloc(sizeof(float) * (sectionSize + remainder_section_size));
+    bufferTmp = (float*)malloc(sizeof(float) * (sectionSize + remainder_section_size));
+  } else {
+    buffer = (float*)malloc(sizeof(float) * sectionSize);
+    bufferTmp = (float*)malloc(sizeof(float) * sectionSize);
+  }
+
+  int* sendcounts = (int*) malloc(sizeof(int)  * size) ;
+  int* displs = (int*) malloc(sizeof(int) * size);
+
+  for(int i = 0; i < size - 1; i++) {
+    displs[i] = i * sectionSize;
+    sendcounts[i] = sectionSize;
+  }
+
+  displs[size-1] = (size-1) * sectionSize;
+  sendcounts[size-1] = sectionSize + remainder_section_size;
+
+
+  //float * buffer = malloc(sizeof(float) * sectionSize);
+  //float * bufferTmp = malloc(sizeof(float) * sectionSize);
+
+  //MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  MPI_Scatterv(image, sendcounts, displs, MPI_FLOAT, buffer ,sendcounts[rank],MPI_FLOAT, 0, MPI_COMM_WORLD);
+
+  int no_of_rows = (rank == size-1) ? ny/size + ny%size : ny/size;
 
   
-  int remainderSize = ny % size;
-
-  int *scounts = (int *)malloc(size * sizeof(int));
-  int *displs = (int *)malloc(size * sizeof(int)*sectionSize);
-
-  for (int i = 0; i < size - 1; ++i)
-  {
-    displs[i] = i * sectionSize * nx;
-    scounts[i] = sectionSize * nx;
-  }
-  displs[size-1] = (size-1) * sectionSize * nx;
-  scounts[size - 1] = remainderSize * nx;
-
-  for (int i = 0; i < nx*ny; i++)
-  {
-    printf("%f\n", image[i]);
-  }
-
-
-
-  MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, scounts[rank], MPI_FLOAT, 0, MPI_COMM_WORLD);
-
-  // MPI_Scatterv(const void *sendbuf, const int *sendcounts, const int *displs,MPI_Datatype sendtype, void *recvbuf, int recvcount,MPI_Datatype recvtype,int root, MPI_Comm comm)
-
-  // MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+  
+  
 
   // Call the stencil kernel
   double tic = wtime();
   for (int t = 0; t < niters; ++t) {
-    stencil(nx, ny/size, buffer, bufferTmp,rank,size);
-    stencil(nx, ny/size, bufferTmp, buffer,rank,size);
+    stencil(nx, no_of_rows, buffer, bufferTmp,rank,size);
+    stencil(nx, no_of_rows, bufferTmp, buffer,rank,size);
   }
   double toc = wtime();
 
@@ -93,16 +102,15 @@ int main(int argc, char *argv[]) {
 
   result = malloc(sizeof(float)*ny*nx);
   
-  // MPI_Gatherv(bufferTmp, sectionSize, MPI_FLOAT, result, scounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
-  
-  // MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
+  //MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
+  MPI_Gatherv(bufferTmp, sendcounts[rank], MPI_FLOAT, result, sendcounts, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
 
   if(rank==0){
-    printf("done\n");
-    // output_image(OUTPUT_FILE, nx, ny, result);
+    output_image(OUTPUT_FILE, nx, ny, result);
   
   }
+
   MPI_Finalize();
 
 
@@ -110,6 +118,7 @@ int main(int argc, char *argv[]) {
   printf("------------------------------------\n");
   printf(" runtime: %lf s\n", toc-tic);
   printf("------------------------------------\n");
+
 
 
 
@@ -128,7 +137,7 @@ float * find_row(float* values,float * offset_array, int start,int end){
 }
 void stencil(const int nx, const int ny,  float *restrict image, float *restrict tmp_image, int rank,int size) {
 
-  printf("we're here\n");
+
   float * send_first_row = malloc(sizeof(float)* nx );
   float * receive_first_row = malloc(sizeof(float)* nx );  
 
@@ -140,28 +149,19 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
   int start = 0;
   int end = nx-1;
-  int bottom_start = (ny - 1) * nx;
-  int bottom_end = (ny - 1) * nx + (nx - 1);
-
-  for (int i = start; i < bottom_end; i++)
-  {
-    // printf("%f\n", image[i]);
-  }
+  int bottom_start = (ny-1)* nx;
+  int bottom_end   = (ny-1)* nx + (nx-1);
 
   MPI_Status status;
 
 
   if(rank == 0){
 
-    printf("1\n");
-
     send_last_row = find_row(image,send_last_row, bottom_start, bottom_end);
     
 
     MPI_Ssend(send_last_row, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
-    printf("2\n");
     MPI_Recv(receive_last_row, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, &status);
-    printf("3\n");
 
      for(int i = 0 ; i< ny ; i++){
       for(int j =0 ; j< nx ; j++){
@@ -179,10 +179,17 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
   }
   else if(rank == size - 1){
 
-    send_first_row = find_row(image,send_first_row, start, end);
-    MPI_Recv(receive_first_row, nx, MPI_FLOAT, rank-1 , 0, MPI_COMM_WORLD, &status);   
-    MPI_Ssend(send_first_row, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
-    
+    if(size%2 == 0) {
+      send_first_row = find_row(image,send_first_row, start, end);
+      MPI_Recv(receive_first_row, nx, MPI_FLOAT, rank-1 , 0, MPI_COMM_WORLD, &status);   
+      MPI_Ssend(send_first_row, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
+    }
+    else{
+      send_first_row = find_row(image,send_first_row, start, end);
+      MPI_Ssend(send_first_row, nx, MPI_FLOAT,rank -1, 0, MPI_COMM_WORLD);
+      MPI_Recv(receive_first_row, nx, MPI_FLOAT, rank-1 , 0, MPI_COMM_WORLD, &status);   
+    }
+
 
     
     
@@ -327,7 +334,7 @@ void output_image(const char * file_name, const int nx, const int ny, float *ima
     }
   }
 
-  // Close the file
+  // Close the file 
   fclose(fp);
 
 }
