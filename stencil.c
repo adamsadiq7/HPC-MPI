@@ -139,7 +139,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
   for (int i = start; i < bottom_end; i++)
   {
-    printf("%d\n", image[i]);
+    printf("%f\n", image[i]);
   }
 
   MPI_Status status;
