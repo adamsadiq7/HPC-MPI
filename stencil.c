@@ -85,13 +85,17 @@ int main(int argc, char *argv[]) {
   float * result;
 
   result = malloc(sizeof(float)*ny*nx);
-  
-  MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
 
+  for (int i = start; i < end; ++i)
+  {
+    result[i] = buffer[i];
+  }
+
+} 
+  // MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
 
   if(rank==0){
     output_image(OUTPUT_FILE, nx, ny, result);
-  
   }
   MPI_Finalize();
 
