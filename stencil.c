@@ -52,17 +52,28 @@ int main(int argc, char *argv[]) {
   float * buffer = malloc(sizeof(float) * sectionSize);
   float *bufferTmp = malloc(sizeof(float) * sectionSize);
 
-  int segmentSize = floor(ny / size);
-  int remainderSize = ny % size;
+  
+  int remainderSize = (ny*nx) % size;
 
   int *scounts = (int *)malloc(size * sizeof(int));
   int *displs = (int *)malloc(size * sizeof(int));
-  for (int i = 0; i < size - 1; ++i)
+  for (int i = 0; i < size ; ++i)
   {
-    displs[i] = i * sectionSize;
-    scounts[i] = sectionSize;
+    if(i < size-1){
+      displs[i] = i * sectionSize;
+      scounts[i] = sectionSize;
+    }
+    else{
+      displs[i] = i * sectionSize + remainderSize*nx;
+      scounts[size - 1] = sectionSize + remainderSize*nx;
+
+    }
   }
-  scounts[size - 1] = nx * remainderSize;
+  
+}
+
+  
+}
 
   MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
