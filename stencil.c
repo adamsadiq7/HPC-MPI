@@ -100,7 +100,7 @@ float *extractRow(float *inputArray, float *outputArray, int start, int end)
 
   return outputArray;
 }
-void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank, int size);
+void stencil(const int nx, const int ny, float *restrict image, float *restrict tmp_image, int rank, int size)
 {
   float *firstRowSend = malloc(sizeof(float) * nx);
   float *firstRowRecv = malloc(sizeof(float) * nx);
