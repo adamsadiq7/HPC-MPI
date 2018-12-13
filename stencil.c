@@ -188,7 +188,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
   }
   else if(rank == size-1){
 
-    firstRowSend = extractRow(image,firstRowSend, firstRowStart, firstRowEnd);
+    firstRowSend = extractRow(image, firstRowSend, firstRowStart, firstRowEnd);
 
     // MPI_Sendrecv(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, firstRowRecv, nx, MPI_FLOAT, rank -1, 0, MPI_COMM_WORLD, status);
 
@@ -258,16 +258,16 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
     if (rank % 2 == 0)
     {
       MPI_Send(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
-      MPI_Send(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD);
       MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank - 1, MASTER, MPI_COMM_WORLD, status);
+      MPI_Send(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD);
       MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank + 1, MASTER, MPI_COMM_WORLD, status);
     }
     else
     {
       MPI_Recv(firstRowRecv, nx, MPI_FLOAT, rank - 1, MASTER, MPI_COMM_WORLD, status);
+      MPI_Send(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
       MPI_Recv(lastRowRecv, nx, MPI_FLOAT, rank + 1, MASTER, MPI_COMM_WORLD, status);
       MPI_Send(lastRowSend, nx, MPI_FLOAT, rank + 1, 0, MPI_COMM_WORLD);
-      MPI_Send(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
     }
 
     // MPI_Sendrecv(firstRowSend, nx, MPI_FLOAT, rank - 1, 0, firstRowRecv, nx, MPI_FLOAT, rank -1, 0, MPI_COMM_WORLD, status);
