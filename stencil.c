@@ -70,10 +70,6 @@ int main(int argc, char *argv[]) {
     }
   }
   
-}
-
-  
-}
 
   MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
