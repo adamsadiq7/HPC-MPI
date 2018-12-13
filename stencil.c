@@ -66,6 +66,10 @@ int main(int argc, char *argv[]) {
   displs[size-1] = (size-1) * sectionSize * nx;
   scounts[size - 1] = remainderSize * nx;
 
+
+
+
+
   MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, scounts[rank], MPI_FLOAT, 0, MPI_COMM_WORLD);
 
   // MPI_Scatterv(const void *sendbuf, const int *sendcounts, const int *displs,MPI_Datatype sendtype, void *recvbuf, int recvcount,MPI_Datatype recvtype,int root, MPI_Comm comm)
@@ -104,7 +108,10 @@ int main(int argc, char *argv[]) {
   printf(" runtime: %lf s\n", toc-tic);
   printf("------------------------------------\n");
 
-
+  for (int i = 0; i < nx*ny; i++)
+  {
+    printf("%f\n", image[i]);
+  }
 
 
   
@@ -139,7 +146,7 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
   for (int i = start; i < bottom_end; i++)
   {
-    printf("%f\n", image[i]);
+    // printf("%f\n", image[i]);
   }
 
   MPI_Status status;
