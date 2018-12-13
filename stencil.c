@@ -134,8 +134,13 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
 
   int start = 0;
   int end = nx-1;
-  int bottom_start = (ny-1)* nx;
-  int bottom_end   = (ny-1)* nx + (nx-1);
+  int bottom_start = (ny - 1) * nx;
+  int bottom_end = (ny - 1) * nx + (nx - 1);
+
+  for (int i = start; i < bottom_end; i++)
+  {
+    printf("%d\n", image[i]);
+  }
 
   MPI_Status status;
 
