@@ -55,20 +55,33 @@ int main(int argc, char *argv[]) {
   int segmentSize = ny / size;
   int remainderSize = ny % size;
 
-  int start, end;
+  // int start, end;
 
-  start = rank * nx * segmentSize;
-  if (rank != size - 1)
-  {
-    end = rank * nx * segmentSize + (nx * segmentSize) - 1;
-  }
-  else
-  { 
-    end = nx * ny - 1;
-  }
+  // start = rank * nx * segmentSize;
+  // if (rank != size - 1){
+  //   end = (rank+1) * nx * segmentSize  - 1;
+  // }
+  // else{
+  //   end = nx * ny - 1;
+  // }
 
-  buffer = find_row(image, buffer, start, end);
+  //buffer = find_row(image, buffer, start, end);
   
+    //int gsize,*sendbuf; 
+    //int root, rbuf[100], i, *displs, *scounts; 
+
+
+    int scounts = (int *)malloc(size*sizeof(int)); 
+    int displs = (int *)malloc(size*sizeof(int)); 
+    for (i=0; i<size-1; ++i) { 
+        displs[i] = i*sectionSize;
+        scounts[i] = sectionSize;
+    }
+    scounts[size-1] = nx*remainderSize;
+
+    MPI_Scatterv(image, scounts, displs, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD); 
+
+
   //MPI_Scatter(image, sectionSize, MPI_FLOAT, buffer, sectionSize, MPI_FLOAT, 0, MPI_COMM_WORLD);
  
 
@@ -86,10 +99,13 @@ int main(int argc, char *argv[]) {
 
   result = malloc(sizeof(float)*ny*nx);
 
-  for (int i = start; i < end; ++i)
-  {
-    result[i] = buffer[i];
-  } 
+  // for (int i = start; i <= end; ++i)
+  // {
+  //   result[i] = buffer[i];
+  // } 
+
+  MPI_Gatherv(bufferTmp, scounts, MPI_FLOAT, result, displs, MPI_FLOAT, 0, MPI_COMM_WORLD);
+
   // MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,result ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
 
   if(rank==0){
@@ -247,7 +263,19 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
       }
     }
 
+
+
   }
+
+  float *sendBuffer = malloc(sizeof(float)*nx*ny);
+
+  for (int i = 0; i < ny; i++){
+    for (int j = 0; j< nx; j++){
+      sendBuffer[j + (i*nx)] = tmp_image[j + (i*nx)];
+    }
+  }
+
+  MPI_Ssend(sendBuffer, nx*ny, MPI_FLOAT,  MASTER, 0, MPI_COMM_WORLD);
 
 
  }
