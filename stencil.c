@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   float * buffer = malloc(sizeof(float) * sectionSize);
   float *bufferTmp = malloc(sizeof(float) * sectionSize);
 
-  int segmentSize = ny / size;
+  int segmentSize = floor(ny / size);
   int remainderSize = ny % size;
 
   int *scounts = (int *)malloc(size * sizeof(int));
