@@ -8,8 +8,8 @@
 #define MASTER 0
 
 
-void stencil(const int nx, const int ny, float * image, float * temp_image,int rank,int noRanks);
-void init_image(const int nx, const int ny, float * image, float * temp_image);
+void stencil(const int nx, const int ny, float * image, float * tempImage,int rank,int noRanks);
+void init_image(const int nx, const int ny, float * image, float * tempImage);
 void output_image(const char * file_name, const int nx, const int ny, float *image);
 double wtime(void);
 int main(int argc, char *argv[]) {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   // Allocate the images
   float *image =malloc(sizeof(float)*nx*ny);
 
-  float *temp_image = malloc(sizeof(float)*nx*ny);;
+  float *tempImage = malloc(sizeof(float)*nx*ny);;
 
   // Initialising MPI
   MPI_Init(&argc, &argv);
@@ -38,10 +38,10 @@ int main(int argc, char *argv[]) {
 
   if(rank == 0){
     image =malloc(sizeof(float)*ny*nx);
-    temp_image = malloc(sizeof(float)*ny*nx);
+    tempImage = malloc(sizeof(float)*ny*nx);
     
     // Set the input image
-    init_image(nx, ny, image, temp_image);
+    init_image(nx, ny, image, tempImage);
 
   }
 
@@ -124,44 +124,64 @@ float * getHalo(float* image,float * output, int start,int finish){
 
   return output;
 }
-void stencil(const int nx, const int ny,  float *restrict image, float *restrict temp_image, int rank,int noRanks) {
+void stencil(const int nx, const int ny,  float *restrict image, float *restrict tempImage, int rank,int noRanks) {
 
+  MPI_Status status;
 
   float * topRowSend = malloc(sizeof(float)* nx );
   float * topRowReceive = malloc(sizeof(float)* nx );  
 
   float * bottomRowSend = malloc(sizeof(float)* nx );
   float * bottomRowReceive = malloc(sizeof(float)* nx );
-  
-  //int start, finish, bottomStart, bottomFinish;
-
 
   int start = 0;
   int finish = nx-1;
   int bottomStart = (ny-1)* nx;
   int bottomFinish   = (ny-1)* nx + (nx-1);
 
-  MPI_Status status;
-
-
   if(rank == 0){
 
     bottomRowSend = getHalo(image,bottomRowSend, bottomStart, bottomFinish);
-    
 
     MPI_Ssend(bottomRowSend, nx, MPI_FLOAT,rank +1, 0, MPI_COMM_WORLD);
     MPI_Recv(bottomRowReceive, nx, MPI_FLOAT, rank+1, 0, MPI_COMM_WORLD, &status);
 
-     for(int i = 0 ; i< ny ; i++){
-      for(int j =0 ; j< nx ; j++){
-        
+     //Corner cases cmonnnnn
+    tempImage[0] = image[0] * 0.6f + (image[nx] + image[1]) * 0.1f; //comment
+    tempImage[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2]) * 0.1f;
+    tempImage[nx*ny-(nx)] = image[nx*ny-(nx)] * 0.6f + (image[nx*ny-(nx*2)] + image[nx*ny-(nx-1)] + bottomRowReceive[0]) * 0.1f;
+    tempImage[nx*ny-1] = image[nx*ny-1] * 0.6f + (image[nx*ny-(nx+1)] + image[nx*ny-2] + bottomRowReceive[nx-1]) * 0.1f;
 
-        temp_image[j+i*nx] = image[j+i*nx] *0.6f;
-        if(i>0)     temp_image[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
-        if(j>0)     temp_image[j+i*nx] += image[j-1 +i*nx] * 0.1f;
-        if(i<ny-1)  temp_image[j+i*nx] += image[j + (i+1)*nx] *0.1f;
-        if(j<nx-1)  temp_image[j+i*nx] += image[j+1 + i*nx] * 0.1f;
-        if(i==ny-1) temp_image[j+i*nx] += bottomRowReceive[j] * 0.1f;
+    //top cases
+
+    for (int j = 1; j<nx-1; ++j){
+      tempImage[j] = image[j] * 0.6f + (image[j-1] + image[j+1] + image[j+nx]) * 0.1f;
+    }
+
+    //bottom cases
+    
+    for (int j = 1; j<nx-1; ++j){
+      tempImage[nx*ny-nx+j] = image[nx*ny-(nx)+j] * 0.6f + (image[nx*ny-(nx)+j-1] + image[nx*ny-(nx)+j+1] + image[nx*ny-(2*nx)+j] +bottomRowReceive[j]) * 0.1f;
+    }
+
+    //1. left cases
+
+    for (int j = 1; j<ny-1; ++j){
+      tempImage[nx*j] = image[nx*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
+    }
+    
+    //2. right cases
+
+    for (int j = 1; j<ny-1; ++j){
+      tempImage[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
+    }
+
+    //3. middle cases
+
+    //#pragma omp simd
+    for (int j = 0; j < (nx*(ny-2)); j+=nx) {
+      for(int i = 1; i<nx-1;++i){
+        tempImage[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
       }
     }
 
@@ -186,13 +206,13 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
      for(int i = 0 ; i< ny ; i++){
       for(int j =0 ; j< nx ; j++){
         
-        temp_image[j+i*nx] = image[j+i*nx] *0.6f;
+        tempImage[j+i*nx] = image[j+i*nx] *0.6f;
 
-        if(i==0)    temp_image[j+i*nx] += topRowReceive[j]*0.1f; 
-        if(i>0)     temp_image[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
-        if(j>0)     temp_image[j+i*nx] += image[j-1 +i*nx] * 0.1f;
-        if(i<ny-1)  temp_image[j+i*nx] += image[j + (i+1)*nx] *0.1f;
-        if(j<nx-1)  temp_image[j+i*nx] += image[j+1 + i*nx] * 0.1f;
+        if(i==0)    tempImage[j+i*nx] += topRowReceive[j]*0.1f; 
+        if(i>0)     tempImage[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
+        if(j>0)     tempImage[j+i*nx] += image[j-1 +i*nx] * 0.1f;
+        if(i<ny-1)  tempImage[j+i*nx] += image[j + (i+1)*nx] *0.1f;
+        if(j<nx-1)  tempImage[j+i*nx] += image[j+1 + i*nx] * 0.1f;
         
       }
     }
@@ -217,14 +237,14 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
       for(int j =0 ; j< nx ; j++){
         
 
-        temp_image[j+i*nx] = image[j+i*nx] *0.6f;
+        tempImage[j+i*nx] = image[j+i*nx] *0.6f;
 
-        if(i==0)    temp_image[j+i*nx] += topRowReceive[j]*0.1f; 
-        if(i>0)     temp_image[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
-        if(j>0)     temp_image[j+i*nx] += image[j-1 +i*nx] * 0.1f;
-        if(i<ny-1)  temp_image[j+i*nx] += image[j + (i+1)*nx] *0.1f;
-        if(j<nx-1)  temp_image[j+i*nx] += image[j+1 + i*nx] * 0.1f;
-        if(i == ny-1)temp_image[j+i*nx] += bottomRowReceive[j] * 0.1f;
+        if(i==0)    tempImage[j+i*nx] += topRowReceive[j]*0.1f; 
+        if(i>0)     tempImage[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
+        if(j>0)     tempImage[j+i*nx] += image[j-1 +i*nx] * 0.1f;
+        if(i<ny-1)  tempImage[j+i*nx] += image[j + (i+1)*nx] *0.1f;
+        if(j<nx-1)  tempImage[j+i*nx] += image[j+1 + i*nx] * 0.1f;
+        if(i == ny-1)tempImage[j+i*nx] += bottomRowReceive[j] * 0.1f;
       }
     }
 
@@ -248,14 +268,14 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
       for(int j =0 ; j< nx ; j++){
         
 
-        temp_image[j+i*nx] = image[j+i*nx] *0.6f;
+        tempImage[j+i*nx] = image[j+i*nx] *0.6f;
 
-        if(i==0)    temp_image[j+i*nx] += topRowReceive[j]*0.1f; 
-        if(i>0)     temp_image[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
-        if(j>0)     temp_image[j+i*nx] += image[j-1 +i*nx] * 0.1f;
-        if(i<ny-1)  temp_image[j+i*nx] += image[j + (i+1)*nx] *0.1f;
-        if(j<nx-1)  temp_image[j+i*nx] += image[j+1 + i*nx] * 0.1f;
-        if(i == ny-1)temp_image[j+i*nx] += bottomRowReceive[j] * 0.1f;
+        if(i==0)    tempImage[j+i*nx] += topRowReceive[j]*0.1f; 
+        if(i>0)     tempImage[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
+        if(j>0)     tempImage[j+i*nx] += image[j-1 +i*nx] * 0.1f;
+        if(i<ny-1)  tempImage[j+i*nx] += image[j + (i+1)*nx] *0.1f;
+        if(j<nx-1)  tempImage[j+i*nx] += image[j+1 + i*nx] * 0.1f;
+        if(i == ny-1)tempImage[j+i*nx] += bottomRowReceive[j] * 0.1f;
       }
     }
 
@@ -265,13 +285,13 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
  }
 
 // Create the input image
-void init_image(const int nx, const int ny, float * image, float * temp_image) {
+void init_image(const int nx, const int ny, float * image, float * tempImage) {
   // Zero everything
   for (int j = 0; j < ny; ++j) {
     for (int i = 0; i < nx; ++i) {
      
      image[j+ny*i] = 0.0;
-     temp_image[j+ny*i] = 0.0;
+     tempImage[j+ny*i] = 0.0;
     }
   }
 
