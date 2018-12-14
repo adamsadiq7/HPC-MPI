@@ -94,41 +94,31 @@ int main(int argc, char *argv[]) {
   }
   double toc = wtime();
 
-
-
   float * final;
 
   final = malloc(sizeof(float)*ny*nx);
   
-  //MPI_Gather(bufferTmp, sectionSize, MPI_FLOAT,final ,sectionSize, MPI_FLOAT,0, MPI_COMM_WORLD);
   MPI_Gatherv(bufferTmp, scounts[rank], MPI_FLOAT, final, scounts, stride, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
 
-  if(rank==0){
+  if(rank==MASTER){
     output_image(OUTPUT_FILE, nx, ny, final);
-  
   }
 
   MPI_Finalize();
 
-
-  // Output
   printf("------------------------------------\n");
   printf(" runtime: %lf s\n", toc-tic);
-  printf("------------------------------------\n");
-
-
-
-
-  
+  printf("------------------------------------\n");  
   
   free(image);
 }
 
 
 float * getHalo(float* image,float * output, int start,int finish){
+  int j=0;
   for( int i =start ; i<= finish; i++){
-    output[i-start] = image[i];
+    output[j] = image[j];
   }
 
   return output;
