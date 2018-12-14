@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 
   printf("------------------------------------\n");
   printf(" runtime: %lf s\n", toc-tic);
-  printf("------------------------------------\n");  
+  printf("------------------------------------\n");
   
   free(image);
 }
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
 float * getHalo(float* image,float * output, int start,int finish){
   int j=0;
   for( int i =start ; i<= finish; i++){
-    output[j] = image[j];
+    output[j] = image[i];
     j++;
   }
 
