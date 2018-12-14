@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  MPI_Scatterv(image, sendcounts, displs, MPI_FLOAT, buffer, sendcounts[rank], MPI_FLOAT, 0, MPI_COMM_WORLD);
+  MPI_Scatterv(image, scounts, displacement, MPI_FLOAT, buffer, scounts[rank], MPI_FLOAT, 0, MPI_COMM_WORLD);
 
   int rowSize;
   if (rank == noRanks - 1)
@@ -174,13 +174,13 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
 
     if (noRanks % 2 == 0)
     {
-      topRowSend = getHalo(image, topRowSend, start, end);
+      topRowSend = getHalo(image, topRowSend, start, finish);
       MPI_Recv(topRowReceive, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD, &status);
       MPI_Ssend(topRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
     }
     else
     {
-      topRowSend = getHalo(image, topRowSend, start, end);
+      topRowSend = getHalo(image, topRowSend, start, finish);
       MPI_Ssend(topRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
       MPI_Recv(topRowReceive, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD, &status);
     }
@@ -208,8 +208,8 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
   else if (rank % 2 == 1)
   {
 
-    topRowSend = getHalo(image, topRowSend, start, end);
-    bottomRowSend = getHalo(image, bottomRowSend, bottom_start, bottom_end);
+    topRowSend = getHalo(image, topRowSend, start, finish);
+    bottomRowSend = getHalo(image, bottomRowSend, bottomStart, bottomFinish);
 
     MPI_Recv(topRowReceive, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD, &status);
     MPI_Ssend(topRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
@@ -241,8 +241,8 @@ void stencil(const int nx, const int ny, float *restrict image, float *restrict 
   }
   else if (rank % 2 == 0)
   {
-    topRowSend = getHalo(image, topRowSend, start, end);
-    bottomRowSend = getHalo(image, bottomRowSend, bottom_start, bottom_end);
+    topRowSend = getHalo(image, topRowSend, start, finish);
+    bottomRowSend = getHalo(image, bottomRowSend, bottomStart, bottomFinish);
 
     MPI_Ssend(topRowSend, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD);
     MPI_Recv(topRowReceive, nx, MPI_FLOAT, rank - 1, 0, MPI_COMM_WORLD, &status);
