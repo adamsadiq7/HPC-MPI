@@ -119,6 +119,7 @@ float * getHalo(float* image,float * output, int start,int finish){
   int j=0;
   for( int i =start ; i<= finish; i++){
     output[j] = image[j];
+    j++;
   }
 
   return output;
