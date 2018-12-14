@@ -42,13 +42,13 @@ The advantage of using MPI is that with more processors, we have less idle time 
 
 \subsection{Row Decomposition}
 
-To increase computing performance, I decided to split up my image between a number of processes. However, how the stencil code is run, it needs to access memory that belongs to another process. To handle this, I used halo's regions to send the bordering pixels to the surrounding processes that required it. Therefore,  to ensure the message passing was efficient, I split image with a row decomposition. Using a 1 Dimensional array, I was able to follow a contiguous access pattern and reduce the risk of cache thrashing, whereas with a column composition, after every memory-step we will have to do a halo exchange, as the whole column will not sit in the cache. Yet, it is also notable to mention that depending on the size of the image, a column decomposition may be preferred. Deciding between the two is an empirical problem as with an image with a much larger width than height, the cost of communications may outweigh the cost of cache thrashing: producing a large overhead when decomposing by rows.
+To increase computing performance, I decided to split up my image between a number of processes. However, how the stencil code is run, it needs to access memory that belongs to another process. To handle this, I used halo regions to send the bordering pixels to the surrounding processes that required it. Therefore,  to ensure the message passing was efficient, I split theimage with a row decomposition. Using a 1 Dimensional array, I was able to follow a contiguous access pattern and reduce the risk of cache thrashing, whereas with a column composition, after every memory-step we will have to do a halo exchange, as the whole column will not sit in the cache. Yet, it is also notable to mention that depending on the size of the image, a column decomposition may be preferred. Deciding between the two is an empirical problem as with an image with a much larger width than height, the cost of communications may outweigh the cost of cache thrashing: producing a large overhead when decomposing by rows.
 
 \subsection{Send \& Receive}
 
-To distribute the image to the different processors I used the MPI Scatter Method. This worked by dividing the pixel values evenly across the number of processes I had. To utilise this I allocated memory to hold the address of a send buffer and used a fixed size for the number of elements to be sent to each process, with a receiving buffer. Through this implementation, I was able to almost trivially receive the image inside the stencil code. After computation using send and receives, I used MPI Gather to collect the image together, similar to Scatter. However, because I wanted to analyse speed up, rather than using 16 ranks, I used MPI Scatterv and Gatherv to be able to allocate a variable amount of data towards each rank. In the case where the \#rows \% \#ranks != 0, I would allocate the remainder for the last rank.
+To distribute the image to the different processors I used the MPI Scatter Method. This worked by dividing the pixel values evenly across the number of processes I had. To utilise this I allocated memory to hold the address of a send buffer and used a fixed size for the number of elements to be sent to each process, with a receiving buffer. Through this implementation, I was able to receive the segmented image inside the stencil code for each rank. After computation using send and receives, I used MPI Gather to collect the image together. However, because I wanted to analyse speed up between ranks, I used MPI Scatterv and Gatherv to be able to allocate a variable amount of data towards each rank, ensuring I was not restricted to 16 processes. In the case where the \#rows \% \#ranks != 0, I would allocate the remainder for the last rank.
 To send the halo regions across the image, I used the MPI\_Send and MPI\_Recv function. Because these calls are blocking, I had to ensure the functions were synchronised upon call. This led to my approach to make my even processes Send then Receive, and the odd processes Receive then Send.
-I used Send initially over Ssend because of it's latent potential to be asynchronous. Because of this it would be able to speed up runtimes with minimal hang times. Yet as Send uses a system buffer, it can carry overheads where Ssend would not. As Ssend was also a potentially safer option in terms of understanding the computational state of the program, i opted for Ssend over Send.
+I used Send initially over Ssend because of it's latent potential to be asynchronous. Because of this it would be able to speed up runtimes with minimal hang times. Yet as Send uses a system buffer, it can carry overheads where Ssend would not. As Ssend was also a potentially safer option in terms of understanding the computational state of the program, therefore, I opted for Ssend over Send.
 
 \section{Performance Analysis}
 
@@ -61,7 +61,7 @@ I used Send initially over Ssend because of it's latent potential to be asynchro
 
 \subsection{Bandwidth vs Latency}
 
-Observing the graph, we see that a possible sublinear declining occurring as cores increase. From 10 processes we see that for the 8000x8000 image, the time fluctuates slightly. This is most likely due to overheads in communication due to the number of processes communicating with each other. To calculate bandwidth, I used the number of calculations per pixel in the image, alongside the number of calls to stencil, dividing by the bottleneck runtime I got a bandwidth of 58GB's. Measuring this against STREAM as a simple memory bandwidth benchmark - I achieved a 88\% of the peak DRAM bandwidth - yet also showing that my program is memory bounded by the L3 cache. The majority of the program receives a cache hit deep within the L3 cache.
+Observing the graph, we see that a possible sublinear declining occurring as cores increase. From 9 processes we see that for the 8000x8000 image, the time fluctuates slightly. This is most likely due to overheads in communication due to the number of processes communicating with each other. To further analyse my program, I calculated the bandwidth. To do this, I used the number of calculations per pixel in the image, alongside the number of calls to stencil. Dividing this by the runtime, I got a bandwidth of 58GB's. Measuring this against STREAM as a simple memory bandwidth benchmark - I achieved a 88\% of the theoretical peak DRAM bandwidth - yet also showing that my program is memory bounded by the L3 cache. The majority of the program receives a cache hit deep within the L3 cache.
 
 \subsection{GFlops}
 
@@ -69,7 +69,7 @@ Observing the graph, we see that a possible sublinear declining occurring as cor
 \centering
 \includegraphics[width = .6\textwidth]{roofLine}
 \label{fig:1.1}
-\caption{GLOP\textbackslash s for stencil}
+\caption{GLOP\forwardslash s for stencil}
 \end{figure}
 
 After calculating my bandwidth, I wanted to calculate my attainable GLOP's. My first step was to calculate operational intensity. Defined as: operations per byte of memory movement - my program was $OIfp32 = 9/((5r + 1w)*4) = 0.375$.
@@ -89,15 +89,22 @@ To get my roofline value, I evaluated \textit{Bandwidth * Operational Intensity}
 
 \subsection{OpenMP}
 
-Implementing OpenMP fairly straightforward, showing its benefit over MPI. It was implemented by 
+Implementing OpenMP fairly straightforward, showing its benefit over MPI. It was implemented by utilising a \textit{\#pragma omp parallel for}, enabling shared memory for the nested for loop in the stencil code. However it was significantly slower than MPI, perhaps with more optimisations it could even out.
 
-However it was significantly slower than MPI. This is likely due to shared.
+\begin{center}
+ \begin{tabular}{||c c c||} 
+ \hline
+  & MPI & OpenMP \\ [0.5ex] 
+ \hline\hline
+  & 19ms & 482ms \\ [1ex]
+ \hline
+\end{tabular}
+\end{center}
 
 
 \section{Conclusion}
-9
-Evaluating my program, using operational intensity, defined: as operations per byte of memory movement - My program was memory bandwidth bound, rather compute bound. However, from the initial operational intensity being: $OI_{fp64}$ = 9/((5r + 1w)*8) = 0.1875: from my double $\xrightarrow{} float$ conversion, $OI_{fp32}$ = 9/((5r + 1w)*4) = 0.375, my operational has intensity doubled.\\
-In conclusion, I have learned how to create optimised programs, not only through algorithmic complexity, but also understanding how to help the compiler optimise effectively, through Memory Hierarchical Techniques, avoiding Disk Thrashing, following convention, yet most of all, empirical experimentation!
+
+In conclusion, I have learned how to create optimised programs, not only through algorithmic complexity, but also utilising shared memory \& message passing, understanding how to distribute processes effectively, through Memory Hierarchical Techniques, avoiding Cache Thrashing, following convention, yet most of all, empirical experimentation!
 
 \section{Sources used}
 
