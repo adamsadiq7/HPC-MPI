@@ -254,18 +254,42 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
    
     
 
-    for(int i = 0 ; i< ny ; i++){
-      for(int j =0 ; j< nx ; j++){
-        
+    //Corner cases cmonnnnn
+    tempImage[0] = image[0] * 0.6f + (image[nx] + image[1] + topRowReceive[0]) * 0.1f; //comment
+    tempImage[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2] + topRowReceive[nx-1]) * 0.1f;
+    tempImage[nx*ny-(nx)] = image[nx*ny-(nx)] * 0.6f + (image[nx*ny-(nx*2)] + image[nx*ny-(nx-1)] + bottomRowReceive[0]) * 0.1f;
+    tempImage[nx*ny-1] = image[nx*ny-1] * 0.6f + (image[nx*ny-(nx+1)] + image[nx*ny-2] + bottomRowReceive[nx-1]) * 0.1f;
 
-        tempImage[j+i*nx] = image[j+i*nx] *0.6f;
+    //top cases
 
-        if(i==0)    tempImage[j+i*nx] += topRowReceive[j]*0.1f; 
-        if(i>0)     tempImage[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
-        if(j>0)     tempImage[j+i*nx] += image[j-1 +i*nx] * 0.1f;
-        if(i<ny-1)  tempImage[j+i*nx] += image[j + (i+1)*nx] *0.1f;
-        if(j<nx-1)  tempImage[j+i*nx] += image[j+1 + i*nx] * 0.1f;
-        if(i == ny-1)tempImage[j+i*nx] += bottomRowReceive[j] * 0.1f;
+    for (int j = 1; j<nx-1; ++j){
+      tempImage[j] = image[j] * 0.6f + (image[j-1] + image[j+1] + image[j+nx] + topRowReceive[j]) * 0.1f;
+    }
+
+    //bottom cases
+    
+    for (int j = 1; j<nx-1; ++j){
+      tempImage[nx*ny-nx+j] = image[nx*ny-(nx)+j] * 0.6f + (image[nx*ny-(nx)+j-1] + image[nx*ny-(nx)+j+1] + image[nx*ny-(2*nx)+j] +bottomRowReceive[j]) * 0.1f;
+    }
+
+    //1. left cases
+
+    for (int j = 1; j<ny-1; ++j){
+      tempImage[nx*j] = image[nx*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
+    }
+    
+    //2. right cases
+
+    for (int j = 1; j<ny-1; ++j){
+      tempImage[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
+    }
+
+    //3. middle cases
+
+    //#pragma omp simd
+    for (int j = 0; j < (nx*(ny-2)); j+=nx) {
+      for(int i = 1; i<nx-1;++i){
+        tempImage[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
       }
     }
 
@@ -285,18 +309,42 @@ void stencil(const int nx, const int ny,  float *restrict image, float *restrict
    
     
 
-    for(int i = 0 ; i< ny ; i++){
-      for(int j =0 ; j< nx ; j++){
-        
+    //Corner cases cmonnnnn
+    tempImage[0] = image[0] * 0.6f + (image[nx] + image[1] + topRowReceive[0]) * 0.1f; //comment
+    tempImage[nx-1] = image[nx-1] * 0.6f + (image[nx*2-1]+ image[nx-2] + topRowReceive[nx-1]) * 0.1f;
+    tempImage[nx*ny-(nx)] = image[nx*ny-(nx)] * 0.6f + (image[nx*ny-(nx*2)] + image[nx*ny-(nx-1)] + bottomRowReceive[0]) * 0.1f;
+    tempImage[nx*ny-1] = image[nx*ny-1] * 0.6f + (image[nx*ny-(nx+1)] + image[nx*ny-2] + bottomRowReceive[nx-1]) * 0.1f;
 
-        tempImage[j+i*nx] = image[j+i*nx] *0.6f;
+    //top cases
 
-        if(i==0)    tempImage[j+i*nx] += topRowReceive[j]*0.1f; 
-        if(i>0)     tempImage[j+i*nx] += image[j + (i-1)*nx] * 0.1f; 
-        if(j>0)     tempImage[j+i*nx] += image[j-1 +i*nx] * 0.1f;
-        if(i<ny-1)  tempImage[j+i*nx] += image[j + (i+1)*nx] *0.1f;
-        if(j<nx-1)  tempImage[j+i*nx] += image[j+1 + i*nx] * 0.1f;
-        if(i == ny-1)tempImage[j+i*nx] += bottomRowReceive[j] * 0.1f;
+    for (int j = 1; j<nx-1; ++j){
+      tempImage[j] = image[j] * 0.6f + (image[j-1] + image[j+1] + image[j+nx] + topRowReceive[j]) * 0.1f;
+    }
+
+    //bottom cases
+    
+    for (int j = 1; j<nx-1; ++j){
+      tempImage[nx*ny-nx+j] = image[nx*ny-(nx)+j] * 0.6f + (image[nx*ny-(nx)+j-1] + image[nx*ny-(nx)+j+1] + image[nx*ny-(2*nx)+j] +bottomRowReceive[j]) * 0.1f;
+    }
+
+    //1. left cases
+
+    for (int j = 1; j<ny-1; ++j){
+      tempImage[nx*j] = image[nx*j] * 0.6f + (image[(nx*j)+1] + image[nx*(j-1)] + image[nx*(j+1)]) * 0.1f;
+    }
+    
+    //2. right cases
+
+    for (int j = 1; j<ny-1; ++j){
+      tempImage[nx*(j+1)-1] = image[nx*(j+1)-1] * 0.6f + (image[nx*j-1] + image[nx*(j+2)-1] + image[nx*(j+1)-2]) * 0.1f;
+    }
+
+    //3. middle cases
+
+    //#pragma omp simd
+    for (int j = 0; j < (nx*(ny-2)); j+=nx) {
+      for(int i = 1; i<nx-1;++i){
+        tempImage[j+i+nx] = image[j+i+nx] * 0.6f + (image[j+i+nx+1] + image[j+i+nx-1] + image[j+i] + image[j+i+(nx*2)]) * 0.1f;
       }
     }
 
